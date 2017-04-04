@@ -44,7 +44,7 @@ public class StyleParamsParser {
         result.titleBarButtonColor = getColor("titleBarButtonColor", getTitleBarButtonColor());
         result.titleBarDisabledButtonColor = getColor("titleBarDisabledButtonColor", getTitleBarDisabledButtonColor());
         result.titleBarTitleFont = getString("titleBarTitleFont", "");
-        result.titleBarTitleTextCentered = getBoolean("titleBarTitleTextAlign", false);
+        result.titleBarTitleTextCentered = getBoolean("titleBarTitleTextCentered", false);
         result.backButtonHidden = getBoolean("backButtonHidden", getDefaultBackButtonHidden());
         result.topTabsHidden = getBoolean("topTabsHidden", getDefaultTopTabsHidden());
 
@@ -247,5 +247,5 @@ public class StyleParamsParser {
     private String getString(String key, String defaultValue) {
         return params.containsKey(key) ? params.getString(key) : defaultValue;
     }
-    
+
 }
