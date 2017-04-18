@@ -73,11 +73,18 @@ public class ViewUtils {
         }
     }
 
-    public static float getScreenHeight() {
+    public static int getScreenHeight() {
         WindowManager wm = (WindowManager) NavigationApplication.instance.getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics metrics = new DisplayMetrics();
         wm.getDefaultDisplay().getMetrics(metrics);
         return metrics.heightPixels;
+    }
+
+    public static int getScreenWidth() {
+        WindowManager wm = (WindowManager) NavigationApplication.instance.getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics metrics = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(metrics);
+        return metrics.widthPixels;
     }
 
     private static int compatGenerateViewId() {

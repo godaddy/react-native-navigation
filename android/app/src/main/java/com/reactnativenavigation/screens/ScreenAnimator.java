@@ -4,6 +4,8 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
@@ -13,40 +15,85 @@ import com.reactnativenavigation.NavigationApplication;
 import com.reactnativenavigation.utils.ViewUtils;
 import com.reactnativenavigation.views.sharedElementTransition.SharedElementsAnimator;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.annotation.Nullable;
 
 class ScreenAnimator {
+
     private final float translationY;
     private Screen screen;
+
+    private Map<String, CustomAnimator> customAnimators = new HashMap<>();
 
     ScreenAnimator(Screen screen) {
         this.screen = screen;
         translationY = 0.08f * ViewUtils.getScreenHeight();
     }
 
-    public void show(boolean animate, final Runnable onAnimationEnd) {
-        if (animate) {
-            createShowAnimator(onAnimationEnd).start();
-        } else {
-            screen.setVisibility(View.VISIBLE);
-            NavigationApplication.instance.runOnMainThread(onAnimationEnd, 200);
+    private CustomAnimator loadAnimator(String type) {
+        Class clazz;
+        try {
+            clazz = Class.forName(type);
+            return (CustomAnimator) clazz.newInstance();
+        } catch (Exception e) {
+            Log.e("loadAnimator", "error loading CustomAnimator class '" + type + "'. " + e.getCause().getMessage(), e);
+            return null;
         }
     }
 
-    public void show(boolean animate) {
+    private Animator resolveCustomAnimator(Bundle animation, Runnable onAnimationEnd) {
+        if (animation != null && animation.containsKey("type")) {
+            String type = animation.getString("type");
+            // use cached copy
+            if (customAnimators.containsKey(type)) {
+                return customAnimators.get(type).createAnimator(animation, screen, onAnimationEnd);
+            }
+            CustomAnimator customAnimator = loadAnimator(type);
+            if (customAnimator != null) {
+                customAnimators.put(type, customAnimator);
+                return customAnimator.createAnimator(animation, screen, onAnimationEnd);
+            }
+        }
+        return null;
+    }
+
+    private Animator resolveShowAnimator(Bundle animation, Runnable onAnimationEnd) {
+        Animator customAnimator = resolveCustomAnimator(animation, onAnimationEnd);
+        if (customAnimator != null) {
+            return customAnimator;
+        }
+        return createShowAnimator(onAnimationEnd);
+    }
+
+    public void show(boolean animate, Bundle nextScreenAnimation, final Runnable onAnimationEnd) {
         if (animate) {
-            createShowAnimator(null).start();
+            resolveShowAnimator(nextScreenAnimation, onAnimationEnd).start();
         } else {
             screen.setVisibility(View.VISIBLE);
+            if (onAnimationEnd != null) {
+                NavigationApplication.instance.runOnMainThread(onAnimationEnd, 200);
+            }
         }
     }
 
-    public void hide(boolean animate, Runnable onAnimationEnd) {
+    private Animator resolveHideAnimation(Bundle animation, Runnable onAnimationEnd) {
+        Animator customAnimation = resolveCustomAnimator(animation, onAnimationEnd);
+        if (customAnimation != null) {
+            return customAnimation;
+        }
+        return createHideAnimator(onAnimationEnd);
+    }
+
+    public void hide(boolean animate, Bundle previousScreenAnimation, Runnable onAnimationEnd) {
         if (animate) {
-            createHideAnimator(onAnimationEnd).start();
+            resolveHideAnimation(previousScreenAnimation, onAnimationEnd).start();
         } else {
             screen.setVisibility(View.INVISIBLE);
-            onAnimationEnd.run();
+            if (onAnimationEnd != null) {
+                onAnimationEnd.run();
+            }
         }
     }
 
@@ -92,7 +139,9 @@ class ScreenAnimator {
         set.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                onAnimationEnd.run();
+                if (onAnimationEnd != null) {
+                    onAnimationEnd.run();
+                }
             }
         });
         return set;
@@ -106,4 +155,5 @@ class ScreenAnimator {
     void hideWithSharedElementsTransition(Runnable onAnimationEnd) {
         new SharedElementsAnimator(screen.sharedElements).hide(onAnimationEnd);
     }
+
 }
