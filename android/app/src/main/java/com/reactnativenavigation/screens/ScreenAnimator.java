@@ -12,6 +12,10 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 
 import com.reactnativenavigation.NavigationApplication;
+import com.reactnativenavigation.screens.animators.FadeInAnimator;
+import com.reactnativenavigation.screens.animators.FadeOutAnimator;
+import com.reactnativenavigation.screens.animators.SlideInFromRightAnimator;
+import com.reactnativenavigation.screens.animators.SlideOutFromLeftAnimator;
 import com.reactnativenavigation.utils.ViewUtils;
 import com.reactnativenavigation.views.sharedElementTransition.SharedElementsAnimator;
 
@@ -28,7 +32,6 @@ class ScreenAnimator {
     private static final String FADE_OUT_ANIMATION = "fadeOut";
     private static final String SLIDE_IN_FROM_RIGHT_ANIMATION = "slideInFromRight";
     private static final String SLIDE_OUT_FROM_LEFT_ANIMATION = "slideOutFromLeft";
-    private static final int DEFAULT_ANIMATION_DURATION_MS = 300;
 
     private final float translationY;
     private Screen screen;
@@ -73,8 +76,8 @@ class ScreenAnimator {
     private Animator resolveShowAnimator(Bundle showScreenAnimation, Runnable onAnimationEnd) {
         if (showScreenAnimation != null && showScreenAnimation.containsKey("type")) {
             switch (showScreenAnimation.getString("type")) {
-                case FADE_IN_ANIMATION: return createFadeInAnimator(showScreenAnimation, onAnimationEnd);
-                case SLIDE_IN_FROM_RIGHT_ANIMATION: return createSlideInFromRightAnimator(showScreenAnimation, onAnimationEnd);
+                case FADE_IN_ANIMATION: return new FadeInAnimator().createAnimator(showScreenAnimation, screen, onAnimationEnd);
+                case SLIDE_IN_FROM_RIGHT_ANIMATION: return new SlideInFromRightAnimator().createAnimator(showScreenAnimation, screen, onAnimationEnd);
             }
         }
         Animator customAnimator = resolveCustomAnimator(showScreenAnimation, onAnimationEnd);
@@ -98,8 +101,8 @@ class ScreenAnimator {
     private Animator resolveHideAnimation(Bundle hideScreenAnimation, Runnable onAnimationEnd) {
         if (hideScreenAnimation != null && hideScreenAnimation.containsKey("type")) {
             switch (hideScreenAnimation.getString("type")) {
-                case FADE_OUT_ANIMATION: return createFadeOutAnimator(hideScreenAnimation, onAnimationEnd);
-                case SLIDE_OUT_FROM_LEFT_ANIMATION: return createSlideOutFromLeftAnimator(hideScreenAnimation, onAnimationEnd);
+                case FADE_OUT_ANIMATION: return new FadeOutAnimator().createAnimator(hideScreenAnimation, screen, onAnimationEnd);
+                case SLIDE_OUT_FROM_LEFT_ANIMATION: return new SlideOutFromLeftAnimator().createAnimator(hideScreenAnimation, screen, onAnimationEnd);
             }
         }
         Animator customAnimation = resolveCustomAnimator(hideScreenAnimation, onAnimationEnd);
@@ -168,84 +171,6 @@ class ScreenAnimator {
             }
         });
         return set;
-    }
-
-    private Animator createFadeInAnimator(Bundle animation, final Runnable onAnimationEnd) {
-        ObjectAnimator fadeIn = ObjectAnimator.ofFloat(screen, View.ALPHA, 0, 1);
-        fadeIn.setInterpolator(new LinearInterpolator());
-        fadeIn.setDuration(animation.getInt("durationMs", DEFAULT_ANIMATION_DURATION_MS));
-        fadeIn.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                screen.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                if (onAnimationEnd != null) {
-                    onAnimationEnd.run();
-                }
-            }
-        });
-
-        return fadeIn;
-    }
-
-    private Animator createFadeOutAnimator(Bundle animation, final Runnable onAnimationEnd) {
-        ObjectAnimator fadeOut = ObjectAnimator.ofFloat(screen, View.ALPHA, 1, 0);
-        fadeOut.setInterpolator(new LinearInterpolator());
-        fadeOut.setDuration(animation.getInt("durationMs", DEFAULT_ANIMATION_DURATION_MS));
-        fadeOut.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                screen.setAlpha(1);
-                if (onAnimationEnd != null) {
-                    onAnimationEnd.run();
-                }
-            }
-        });
-
-        return fadeOut;
-    }
-
-    private Animator createSlideInFromRightAnimator(Bundle animation, final Runnable onAnimationEnd) {
-        ObjectAnimator slideInFromRight = ObjectAnimator.ofFloat(screen, View.TRANSLATION_X, ViewUtils.getScreenWidth(), 0);
-        slideInFromRight.setInterpolator(new DecelerateInterpolator());
-        slideInFromRight.setDuration(animation.getInt("durationMs", DEFAULT_ANIMATION_DURATION_MS));
-        slideInFromRight.setStartDelay(1);
-        slideInFromRight.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                super.onAnimationStart(animation);
-                screen.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                if (onAnimationEnd != null) {
-                    onAnimationEnd.run();
-                }
-            }
-        });
-
-        return slideInFromRight;
-    }
-
-    private Animator createSlideOutFromLeftAnimator(Bundle animation, final Runnable onAnimationEnd) {
-        ObjectAnimator slideInFromRight = ObjectAnimator.ofFloat(screen, View.TRANSLATION_X, 0, ViewUtils.getScreenWidth());
-        slideInFromRight.setInterpolator(new DecelerateInterpolator());
-        slideInFromRight.setDuration(animation.getInt("durationMs", DEFAULT_ANIMATION_DURATION_MS));
-        slideInFromRight.addListener(new AnimatorListenerAdapter() {
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                if (onAnimationEnd != null) {
-                    onAnimationEnd.run();
-                }
-            }
-        });
-
-        return slideInFromRight;
     }
 
     void showWithSharedElementsTransitions(Runnable onAnimationEnd) {
