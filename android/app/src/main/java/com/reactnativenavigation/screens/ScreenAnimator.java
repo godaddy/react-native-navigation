@@ -4,6 +4,8 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
@@ -16,40 +18,105 @@ import com.reactnativenavigation.views.sharedElementTransition.SharedElementsAni
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.annotation.Nullable;
 
 class ScreenAnimator {
+    private static final String FADE_IN_ANIMATION = "fadeIn";
+    private static final String FADE_OUT_ANIMATION = "fadeOut";
+    private static final String SLIDE_IN_FROM_RIGHT_ANIMATION = "slideInFromRight";
+    private static final String SLIDE_OUT_FROM_LEFT_ANIMATION = "slideOutFromLeft";
+    private static final int DEFAULT_ANIMATION_DURATION_MS = 300;
+
     private final float translationY;
     private Screen screen;
+
+    private static Map<String, CustomAnimator> customAnimators = new HashMap<>();
 
     ScreenAnimator(Screen screen) {
         this.screen = screen;
         translationY = 0.08f * ViewUtils.getScreenHeight();
     }
 
-    public void show(boolean animate, final Runnable onAnimationEnd) {
-        if (animate) {
-            createShowAnimator(onAnimationEnd).start();
-        } else {
-            screen.setVisibility(View.VISIBLE);
-            NavigationApplication.instance.runOnMainThread(onAnimationEnd, 200);
+    private CustomAnimator loadCustomAnimator(String customAnimator) {
+        Class clazz;
+        try {
+            clazz = Class.forName(customAnimator);
+            return (CustomAnimator) clazz.newInstance();
+        } catch (Exception e) {
+            Log.e("loadCustomAnimator", "error loading CustomAnimator class '" + customAnimator + "'. " + e.getCause().getMessage(), e);
+            return null;
         }
     }
 
-    public void show(boolean animate) {
+    private Animator resolveCustomAnimator(Bundle animation, Runnable onAnimationEnd) {
+        if (animation != null && animation.containsKey("androidCustomAnimator")) {
+            String androidCustomAnimator = animation.getString("androidCustomAnimator");
+            if (customAnimators == null) {
+                customAnimators = new HashMap<>();
+            }
+            // use cached copy
+            if (customAnimators.containsKey(androidCustomAnimator)) {
+                return customAnimators.get(androidCustomAnimator).createAnimator(animation, screen, onAnimationEnd);
+            }
+            CustomAnimator customAnimator = loadCustomAnimator(androidCustomAnimator);
+            if (customAnimator != null) {
+                customAnimators.put(androidCustomAnimator, customAnimator);
+                return customAnimator.createAnimator(animation, screen, onAnimationEnd);
+            }
+        }
+        return null;
+    }
+
+    private Animator resolveShowAnimator(Bundle showScreenAnimation, Runnable onAnimationEnd) {
+        if (showScreenAnimation != null && showScreenAnimation.containsKey("type")) {
+            switch (showScreenAnimation.getString("type")) {
+                case FADE_IN_ANIMATION: return createFadeInAnimator(showScreenAnimation, onAnimationEnd);
+                case SLIDE_IN_FROM_RIGHT_ANIMATION: return createSlideInFromRightAnimator(showScreenAnimation, onAnimationEnd);
+            }
+        }
+        Animator customAnimator = resolveCustomAnimator(showScreenAnimation, onAnimationEnd);
+        if (customAnimator != null) {
+            return customAnimator;
+        }
+        return createShowAnimator(onAnimationEnd);
+    }
+
+    public void show(boolean animate, Bundle showScreenAnimation, final Runnable onAnimationEnd) {
         if (animate) {
-            createShowAnimator(null).start();
+            resolveShowAnimator(showScreenAnimation, onAnimationEnd).start();
         } else {
             screen.setVisibility(View.VISIBLE);
+            if (onAnimationEnd != null) {
+                NavigationApplication.instance.runOnMainThread(onAnimationEnd, 200);
+            }
         }
     }
 
-    public void hide(boolean animate, Runnable onAnimationEnd) {
+    private Animator resolveHideAnimation(Bundle hideScreenAnimation, Runnable onAnimationEnd) {
+        if (hideScreenAnimation != null && hideScreenAnimation.containsKey("type")) {
+            switch (hideScreenAnimation.getString("type")) {
+                case FADE_OUT_ANIMATION: return createFadeOutAnimator(hideScreenAnimation, onAnimationEnd);
+                case SLIDE_OUT_FROM_LEFT_ANIMATION: return createSlideOutFromLeftAnimator(hideScreenAnimation, onAnimationEnd);
+            }
+        }
+        Animator customAnimation = resolveCustomAnimator(hideScreenAnimation, onAnimationEnd);
+        if (customAnimation != null) {
+            return customAnimation;
+        }
+        return createHideAnimator(onAnimationEnd);
+    }
+
+    public void hide(boolean animate, Bundle hideScreenAnimation, Runnable onAnimationEnd) {
         if (animate) {
-            createHideAnimator(onAnimationEnd).start();
+            resolveHideAnimation(hideScreenAnimation, onAnimationEnd).start();
         } else {
             screen.setVisibility(View.INVISIBLE);
-            onAnimationEnd.run();
+            if (onAnimationEnd != null) {
+                onAnimationEnd.run();
+            }
         }
     }
 
@@ -95,7 +162,95 @@ class ScreenAnimator {
         set.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                onAnimationEnd.run();
+                if (onAnimationEnd != null) {
+                    onAnimationEnd.run();
+                }
+            }
+        });
+        return set;
+    }
+
+    private Animator createFadeInAnimator(Bundle animation, final Runnable onAnimationEnd) {
+        ObjectAnimator fadeIn = ObjectAnimator.ofFloat(screen, View.ALPHA, 0, 1);
+        fadeIn.setInterpolator(new LinearInterpolator());
+        fadeIn.setDuration(animation.getInt("durationMs", DEFAULT_ANIMATION_DURATION_MS));
+
+        AnimatorSet set = new AnimatorSet();
+        set.playTogether(fadeIn);
+        set.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                screen.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (onAnimationEnd != null) {
+                    onAnimationEnd.run();
+                }
+            }
+        });
+        return set;
+    }
+
+    private Animator createFadeOutAnimator(Bundle animation, final Runnable onAnimationEnd) {
+        ObjectAnimator fadeOut = ObjectAnimator.ofFloat(screen, View.ALPHA, 1, 0);
+        fadeOut.setInterpolator(new LinearInterpolator());
+        fadeOut.setDuration(animation.getInt("durationMs", DEFAULT_ANIMATION_DURATION_MS));
+
+        AnimatorSet set = new AnimatorSet();
+        set.playTogether(fadeOut);
+        set.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                screen.setAlpha(1);
+                if (onAnimationEnd != null) {
+                    onAnimationEnd.run();
+                }
+            }
+        });
+        return set;
+    }
+
+    private Animator createSlideInFromRightAnimator(Bundle animation, final Runnable onAnimationEnd) {
+        ObjectAnimator slideInFromRight = ObjectAnimator.ofFloat(screen, View.TRANSLATION_X, ViewUtils.getScreenWidth(), 0);
+        slideInFromRight.setInterpolator(new DecelerateInterpolator());
+        slideInFromRight.setDuration(animation.getInt("durationMs", DEFAULT_ANIMATION_DURATION_MS));
+        slideInFromRight.setStartDelay(1);
+        slideInFromRight.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                super.onAnimationStart(animation);
+                screen.setVisibility(View.VISIBLE);
+            }
+        });
+        AnimatorSet set = new AnimatorSet();
+        set.playTogether(slideInFromRight);
+        set.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (onAnimationEnd != null) {
+                    onAnimationEnd.run();
+                }
+            }
+        });
+        return set;
+    }
+
+    private Animator createSlideOutFromLeftAnimator(Bundle animation, final Runnable onAnimationEnd) {
+        ObjectAnimator slideInFromRight = ObjectAnimator.ofFloat(screen, View.TRANSLATION_X, 0, ViewUtils.getScreenWidth());
+        slideInFromRight.setInterpolator(new DecelerateInterpolator());
+        slideInFromRight.setDuration(animation.getInt("durationMs", DEFAULT_ANIMATION_DURATION_MS));
+
+        AnimatorSet set = new AnimatorSet();
+        set.playTogether(slideInFromRight);
+        set.addListener(new AnimatorListenerAdapter() {
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (onAnimationEnd != null) {
+                    onAnimationEnd.run();
+                }
             }
         });
         return set;
