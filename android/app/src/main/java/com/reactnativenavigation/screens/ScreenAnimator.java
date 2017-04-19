@@ -174,10 +174,7 @@ class ScreenAnimator {
         ObjectAnimator fadeIn = ObjectAnimator.ofFloat(screen, View.ALPHA, 0, 1);
         fadeIn.setInterpolator(new LinearInterpolator());
         fadeIn.setDuration(animation.getInt("durationMs", DEFAULT_ANIMATION_DURATION_MS));
-
-        AnimatorSet set = new AnimatorSet();
-        set.playTogether(fadeIn);
-        set.addListener(new AnimatorListenerAdapter() {
+        fadeIn.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
                 screen.setVisibility(View.VISIBLE);
@@ -190,17 +187,15 @@ class ScreenAnimator {
                 }
             }
         });
-        return set;
+
+        return fadeIn;
     }
 
     private Animator createFadeOutAnimator(Bundle animation, final Runnable onAnimationEnd) {
         ObjectAnimator fadeOut = ObjectAnimator.ofFloat(screen, View.ALPHA, 1, 0);
         fadeOut.setInterpolator(new LinearInterpolator());
         fadeOut.setDuration(animation.getInt("durationMs", DEFAULT_ANIMATION_DURATION_MS));
-
-        AnimatorSet set = new AnimatorSet();
-        set.playTogether(fadeOut);
-        set.addListener(new AnimatorListenerAdapter() {
+        fadeOut.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 screen.setAlpha(1);
@@ -209,7 +204,8 @@ class ScreenAnimator {
                 }
             }
         });
-        return set;
+
+        return fadeOut;
     }
 
     private Animator createSlideInFromRightAnimator(Bundle animation, final Runnable onAnimationEnd) {
@@ -223,10 +219,7 @@ class ScreenAnimator {
                 super.onAnimationStart(animation);
                 screen.setVisibility(View.VISIBLE);
             }
-        });
-        AnimatorSet set = new AnimatorSet();
-        set.playTogether(slideInFromRight);
-        set.addListener(new AnimatorListenerAdapter() {
+
             @Override
             public void onAnimationEnd(Animator animation) {
                 if (onAnimationEnd != null) {
@@ -234,17 +227,15 @@ class ScreenAnimator {
                 }
             }
         });
-        return set;
+
+        return slideInFromRight;
     }
 
     private Animator createSlideOutFromLeftAnimator(Bundle animation, final Runnable onAnimationEnd) {
         ObjectAnimator slideInFromRight = ObjectAnimator.ofFloat(screen, View.TRANSLATION_X, 0, ViewUtils.getScreenWidth());
         slideInFromRight.setInterpolator(new DecelerateInterpolator());
         slideInFromRight.setDuration(animation.getInt("durationMs", DEFAULT_ANIMATION_DURATION_MS));
-
-        AnimatorSet set = new AnimatorSet();
-        set.playTogether(slideInFromRight);
-        set.addListener(new AnimatorListenerAdapter() {
+        slideInFromRight.addListener(new AnimatorListenerAdapter() {
 
             @Override
             public void onAnimationEnd(Animator animation) {
@@ -253,7 +244,8 @@ class ScreenAnimator {
                 }
             }
         });
-        return set;
+
+        return slideInFromRight;
     }
 
     void showWithSharedElementsTransitions(Runnable onAnimationEnd) {
