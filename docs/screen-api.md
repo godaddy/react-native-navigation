@@ -25,7 +25,7 @@ this.props.navigator.push({
   hideScreenAnimation: { // overrides the default hide screen animation (optional)
     type: 'fadeOut', // 'slideOutFromLeft', type of hide screen animation
     durationMs: 250, // duration of hide screen animation in ms, (optional, default 300)
-    androidCustomAnimator: 'com.example.MyCustomAnimator' // android only, fully qualified name of class implementing CustomAnimator interface. Will be used for creating show screen animation, if type is not specified.
+    androidCustomAnimator: 'com.example.MyCustomAnimator' // android only, fully qualified name of class implementing CustomAnimator interface. Will be used for creating hide screen animation, if type is not specified.
   }
 });
 ```

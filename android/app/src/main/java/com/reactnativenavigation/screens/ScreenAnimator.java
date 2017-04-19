@@ -43,6 +43,11 @@ class ScreenAnimator {
         translationY = 0.08f * ViewUtils.getScreenHeight();
     }
 
+    /**
+     * Method that tries to load and instantiate CustomAnimator based on fully qualified name
+     * @param customAnimator fully qualified name of CustomAnimator
+     * @return instance of CustomAnimator or null
+     */
     private CustomAnimator loadCustomAnimator(String customAnimator) {
         Class clazz;
         try {
@@ -54,6 +59,12 @@ class ScreenAnimator {
         }
     }
 
+    /**
+     * Method that returns animator identified by androidCustomAnimator bundle param, if applicable.
+     * @param animation bundle with attributes for CustomAnimator
+     * @param onAnimationEnd optional task to be run when screen is shown
+     * @return instance of CustomAnimator or null
+     */
     private Animator resolveCustomAnimator(Bundle animation, Runnable onAnimationEnd) {
         if (animation != null && animation.containsKey("androidCustomAnimator")) {
             String androidCustomAnimator = animation.getString("androidCustomAnimator");
@@ -73,6 +84,12 @@ class ScreenAnimator {
         return null;
     }
 
+    /**
+     * Method that returns animator based on showScreenAnimation param. First it looks into built-in ones, then custom one and fallbacks to default one
+     * @param showScreenAnimation bundle with attributes for CustomAnimator
+     * @param onAnimationEnd optional task to be run when screen is shown
+     * @return animator to be used
+     */
     private Animator resolveShowAnimator(Bundle showScreenAnimation, Runnable onAnimationEnd) {
         if (showScreenAnimation != null && showScreenAnimation.containsKey("type")) {
             switch (showScreenAnimation.getString("type")) {
@@ -87,6 +104,12 @@ class ScreenAnimator {
         return createShowAnimator(onAnimationEnd);
     }
 
+    /**
+     * Method that shows the new view, with optional animation and task to run when screen is shown
+     * @param animate flag whether to animate showing process or show straight away
+     * @param showScreenAnimation optional bundle with attributes for CustomAnimator
+     * @param onAnimationEnd optional task to be run when screen is shown
+     */
     public void show(boolean animate, Bundle showScreenAnimation, final Runnable onAnimationEnd) {
         if (animate) {
             resolveShowAnimator(showScreenAnimation, onAnimationEnd).start();
@@ -98,7 +121,13 @@ class ScreenAnimator {
         }
     }
 
-    private Animator resolveHideAnimation(Bundle hideScreenAnimation, Runnable onAnimationEnd) {
+    /**
+     * Method that returns animator based on hideScreenAnimation param. First it looks into built-in ones, then custom one and fallbacks to default one
+     * @param hideScreenAnimation bundle with attributes for CustomAnimator
+     * @param onAnimationEnd optional task to be run when screen is hidden
+     * @return animator to be used
+     */
+    private Animator resolveHideAnimator(Bundle hideScreenAnimation, Runnable onAnimationEnd) {
         if (hideScreenAnimation != null && hideScreenAnimation.containsKey("type")) {
             switch (hideScreenAnimation.getString("type")) {
                 case FADE_OUT_ANIMATION: return new FadeOutAnimator().createAnimator(hideScreenAnimation, screen, onAnimationEnd);
@@ -112,9 +141,15 @@ class ScreenAnimator {
         return createHideAnimator(onAnimationEnd);
     }
 
+    /**
+     * Method that hides the old view, with optional animation and task to run when screen is hidden
+     * @param animate flag whether to animate hiding process or hide straight away
+     * @param hideScreenAnimation optional bundle with attributes for CustomAnimator
+     * @param onAnimationEnd optional task to be run when screen is hidden
+     */
     public void hide(boolean animate, Bundle hideScreenAnimation, Runnable onAnimationEnd) {
         if (animate) {
-            resolveHideAnimation(hideScreenAnimation, onAnimationEnd).start();
+            resolveHideAnimator(hideScreenAnimation, onAnimationEnd).start();
         } else {
             screen.setVisibility(View.INVISIBLE);
             if (onAnimationEnd != null) {
@@ -123,6 +158,11 @@ class ScreenAnimator {
         }
     }
 
+    /**
+     * Default show screen animation
+     * @param onAnimationEnd optional task to be run when screen is shown
+     * @return default animator
+     */
     private Animator createShowAnimator(final @Nullable Runnable onAnimationEnd) {
         ObjectAnimator alpha = ObjectAnimator.ofFloat(screen, View.ALPHA, 0, 1);
         alpha.setInterpolator(new DecelerateInterpolator());
@@ -150,6 +190,11 @@ class ScreenAnimator {
         return set;
     }
 
+    /**
+     * Default hide screen animation
+     * @param onAnimationEnd optional task to be run when screen is hidden
+     * @return default animator
+     */
     private Animator createHideAnimator(final Runnable onAnimationEnd) {
         ObjectAnimator alpha = ObjectAnimator.ofFloat(screen, View.ALPHA, 0);
         alpha.setInterpolator(new LinearInterpolator());
