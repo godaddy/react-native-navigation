@@ -1,5 +1,6 @@
-import React, {Component, View} from 'react';
+import React, {Component} from 'react';
 import {
+  View,
   requireNativeComponent
 } from 'react-native';
 
