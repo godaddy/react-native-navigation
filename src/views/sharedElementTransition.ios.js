@@ -1,11 +1,14 @@
 import React, {Component} from 'react';
 import {
-  View,
-  requireNativeComponent
+  View
 } from 'react-native';
 
 export default class SharedElementTransition extends Component {
   render() {
-    return <View />;
+    return (
+      <View>
+        {this.props.children}
+      </View>
+    );
   }
 }
