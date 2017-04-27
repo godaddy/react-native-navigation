@@ -6,7 +6,7 @@ import {
 export default class SharedElementTransition extends Component {
   render() {
     return (
-      <View>
+      <View {...this.props}>
         {this.props.children}
       </View>
     );
