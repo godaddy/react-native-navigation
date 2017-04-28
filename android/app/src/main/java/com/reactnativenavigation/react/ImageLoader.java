@@ -9,9 +9,13 @@ import android.util.Log;
 import com.reactnativenavigation.NavigationApplication;
 
 import java.lang.reflect.Constructor;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ImageLoader {
     private static final String FILE_SCHEME = "file";
+
+    private static Map<String, Drawable> drawableCache = new HashMap();
 
     public static Drawable loadImage(String iconSource) {
         if (NavigationApplication.instance.isDebug()) {
@@ -32,12 +36,21 @@ public class ImageLoader {
      * @param className Full qualified name of class.
      * @return Newly created Drawable instance.
      */
-    public static Drawable loadClass(String className) {
+    public static Drawable loadDrawableFromClassName(String className) {
+        if (drawableCache == null) {
+            drawableCache = new HashMap<>();
+        }
+        Drawable hit = drawableCache.get(className);
+        if (hit != null) {
+            return hit;
+        }
         Class clazz;
         try {
             clazz = Class.forName(className);
             Constructor<?> constructor = clazz.getConstructor(Context.class);
-            return (Drawable) constructor.newInstance(NavigationApplication.instance);
+            Drawable instance = (Drawable) constructor.newInstance(NavigationApplication.instance);
+            drawableCache.put(className, instance);
+            return instance;
         } catch (Exception e) {
             Log.e("ImageLoader", "error loading Drawable class '" + className + "'. " + e.getCause().getMessage(), e);
             return null;

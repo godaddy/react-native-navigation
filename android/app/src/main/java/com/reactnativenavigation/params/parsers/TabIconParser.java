@@ -16,7 +16,7 @@ class TabIconParser extends Parser {
     public Drawable parse() {
         Drawable tabIcon = null;
         if (hasKey(params, "androidDrawableClass")) {
-            tabIcon = ImageLoader.loadClass(params.getString("androidDrawableClass"));
+            tabIcon = ImageLoader.loadDrawableFromClassName(params.getString("androidDrawableClass"));
         } else if (hasKey(params, "icon")) {
               tabIcon = ImageLoader.loadImage(params.getString("icon"));
         }

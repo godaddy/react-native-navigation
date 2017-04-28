@@ -17,7 +17,6 @@ public class SlideInFromRightAnimator implements CustomAnimator {
         ObjectAnimator slideInFromRight = ObjectAnimator.ofFloat(screen, View.TRANSLATION_X, ViewUtils.getScreenWidth(), 0);
         slideInFromRight.setInterpolator(new DecelerateInterpolator());
         slideInFromRight.setDuration(animation.getInt("durationMs", DEFAULT_ANIMATION_DURATION_MS));
-        slideInFromRight.setStartDelay(1);
         slideInFromRight.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
