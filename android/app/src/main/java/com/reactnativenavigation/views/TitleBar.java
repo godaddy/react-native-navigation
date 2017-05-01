@@ -29,7 +29,7 @@ public class TitleBar extends Toolbar {
     private static final int TITLE_VISIBILITY_ANIMATION_DURATION = 320;
     private LeftButton leftButton;
     private ActionMenuView actionMenuView;
-    private boolean titleBarTitleTextCentered;
+    private List<TitleBarButtonParams> rightButtons;
 
     public TitleBar(Context context) {
         super(context);
@@ -49,12 +49,13 @@ public class TitleBar extends Toolbar {
     }
 
     public void setRightButtons(List<TitleBarButtonParams> rightButtons, String navigatorEventId) {
+        this.rightButtons = rightButtons;
         Menu menu = getMenu();
         menu.clear();
         if (rightButtons == null) {
             return;
         }
-        addButtonsToTitleBar(rightButtons, navigatorEventId, menu);
+        addButtonsToTitleBar(navigatorEventId, menu);
     }
 
     public void setLeftButton(TitleBarLeftButtonParams leftButtonParams,
@@ -78,7 +79,6 @@ public class TitleBar extends Toolbar {
     }
 
     public void setStyle(StyleParams params) {
-        titleBarTitleTextCentered = params.titleBarTitleTextCentered;
         setVisibility(params.titleBarHidden ? GONE : VISIBLE);
         setTitleTextColor(params);
         setTitleTextFont(params);
@@ -97,11 +97,9 @@ public class TitleBar extends Toolbar {
             @Override
             public void run() {
                 if (params.titleBarTitleTextCentered) {
-                    int[] location = new int[2];
-                    titleView.getLocationOnScreen(location);
-                    titleView.setTranslationX(titleView.getTranslationX() + (-location[0] + ViewUtils.getScreenWidth() / 2 - titleView.getWidth() / 2));
+                    titleView.setX(ViewUtils.getScreenWidth() / 2 - titleView.getWidth() / 2);
                 }
-
+                
             }
         });
     }
@@ -149,7 +147,7 @@ public class TitleBar extends Toolbar {
         }
     }
 
-    private void addButtonsToTitleBar(List<TitleBarButtonParams> rightButtons, String navigatorEventId, Menu menu) {
+    private void addButtonsToTitleBar(String navigatorEventId, Menu menu) {
         for (int i = 0; i < rightButtons.size(); i++) {
             final TitleBarButton button = ButtonFactory.create(menu, this, rightButtons.get(i), navigatorEventId);
             addButtonInReverseOrder(rightButtons, i, button);
@@ -252,5 +250,46 @@ public class TitleBar extends Toolbar {
                 return child.getText().equals(getTitle());
             }
         });
+    }
+
+    public void setButtonColor(StyleParams.Color titleBarButtonColor) {
+        if (!titleBarButtonColor.hasColor()) {
+            return;
+        }
+        updateButtonColor(titleBarButtonColor);
+        setButtonsIconColor();
+        setButtonTextColor();
+    }
+
+    private void updateButtonColor(StyleParams.Color titleBarButtonColor) {
+        for (TitleBarButtonParams rightButton : rightButtons) {
+            rightButton.color = titleBarButtonColor;
+        }
+    }
+
+    private void setButtonTextColor() {
+        final ActionMenuView buttonsContainer = ViewUtils.findChildByClass(this, ActionMenuView.class);
+        if (buttonsContainer != null) {
+            for (int i = 0; i < buttonsContainer.getChildCount(); i++) {
+                if (buttonsContainer.getChildAt(i) instanceof TextView) {
+                    ((TextView) buttonsContainer.getChildAt(i)).setTextColor(getButton(i).getColor().getColor());
+                }
+            }
+        }
+    }
+
+    private void setButtonsIconColor() {
+        final Menu menu = getMenu();
+        for (int i = 0; i < menu.size(); i++) {
+            if (menu.getItem(i).getIcon() != null) {
+                ViewUtils.tintDrawable(menu.getItem(i).getIcon(),
+                        getButton(i).getColor().getColor(),
+                        getButton(i).enabled);
+            }
+        }
+    }
+
+    BaseTitleBarButtonParams getButton(int index) {
+        return rightButtons.get(rightButtons.size() - index - 1);
     }
 }
