@@ -463,7 +463,8 @@ function addNavigatorParams(screen, navigator = null, idx = '') {
 function addNavigatorButtons(screen, sideMenuParams) {
 
   const Screen = Navigation.getRegisteredScreen(screen.screen);
-  if (screen.navigatorButtons == null) {
+  // added true to condition below to fix the immutable problem
+  if (true || screen.navigatorButtons == null) {
     screen.navigatorButtons = _.cloneDeep(Screen.navigatorButtons);
   }
 
