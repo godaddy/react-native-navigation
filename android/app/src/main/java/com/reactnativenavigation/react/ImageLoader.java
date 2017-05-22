@@ -1,6 +1,8 @@
 package com.reactnativenavigation.react;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -62,7 +64,8 @@ public class ImageLoader {
     }
 
     private static Drawable loadFile(Uri uri) {
-        return new BitmapDrawable(NavigationApplication.instance.getResources(), uri.getPath());
+        Bitmap bitmap = BitmapFactory.decodeFile(uri.getPath());
+        return new BitmapDrawable(NavigationApplication.instance.getResources(), bitmap);
     }
 
     private static Drawable loadResource(String iconSource) {
