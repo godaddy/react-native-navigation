@@ -23,6 +23,7 @@ public class ScreenParamsParser extends Parser {
     private static final String OVERRIDE_BACK_PRESS = "overrideBackPress";
     private static final String SHOW_SCREEN_ANIMATION = "showScreenAnimation";
     private static final String HIDE_SCREEN_ANIMATION = "hideScreenAnimation";
+    private static final String ANIMATION_TYPE = "animationType";
 
     @SuppressWarnings("ConstantConditions")
     public static ScreenParams parse(Bundle params) {
@@ -61,6 +62,7 @@ public class ScreenParamsParser extends Parser {
         if (hasKey(params, HIDE_SCREEN_ANIMATION)) {
             result.hideScreenAnimation = params.getBundle(HIDE_SCREEN_ANIMATION);
         }
+        result.animationType = params.getString(ANIMATION_TYPE);
 
         return result;
     }

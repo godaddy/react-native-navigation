@@ -34,6 +34,7 @@ class ScreenAnimator {
     private static final String SLIDE_OUT_FROM_LEFT_ANIMATION = "slideOutFromLeft";
 
     private final float translationY;
+    private final float translationX;
     private Screen screen;
 
     private static Map<String, CustomAnimator> customAnimators = new HashMap<>();
@@ -41,6 +42,7 @@ class ScreenAnimator {
     ScreenAnimator(Screen screen) {
         this.screen = screen;
         translationY = 0.08f * ViewUtils.getScreenHeight();
+        translationX = 0.08f * ViewUtils.getScreenWidth();
     }
 
     /**
@@ -168,12 +170,30 @@ class ScreenAnimator {
         alpha.setInterpolator(new DecelerateInterpolator());
         alpha.setDuration(200);
 
-        ObjectAnimator translationY = ObjectAnimator.ofFloat(screen, View.TRANSLATION_Y, this.translationY, 0);
-        translationY.setInterpolator(new DecelerateInterpolator());
-        translationY.setDuration(280);
-
         AnimatorSet set = new AnimatorSet();
-        set.playTogether(translationY, alpha);
+        switch (String.valueOf(this.screen.screenParams.animationType)) {
+            case "fade": {
+                set.play(alpha);
+                break;
+            }
+            case "slide-horizontal": {
+                ObjectAnimator translationX = ObjectAnimator.ofFloat(screen, View.TRANSLATION_X, this.translationX, 0);
+                translationX.setInterpolator(new DecelerateInterpolator());
+                translationX.setDuration(280);
+
+                set.playTogether(translationX, alpha);
+                break;
+            }
+            default: {
+                ObjectAnimator translationY = ObjectAnimator.ofFloat(screen, View.TRANSLATION_Y, this.translationY, 0);
+                translationY.setInterpolator(new DecelerateInterpolator());
+                translationY.setDuration(280);
+
+                set.playTogether(translationY, alpha);
+                break;
+            }
+        }
+
         set.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
@@ -201,12 +221,30 @@ class ScreenAnimator {
         alpha.setStartDelay(100);
         alpha.setDuration(150);
 
-        ObjectAnimator translationY = ObjectAnimator.ofFloat(screen, View.TRANSLATION_Y, this.translationY);
-        translationY.setInterpolator(new AccelerateInterpolator());
-        translationY.setDuration(250);
-
         AnimatorSet set = new AnimatorSet();
-        set.playTogether(translationY, alpha);
+        switch (String.valueOf(this.screen.screenParams.animationType)) {
+            case "fade": {
+                set.play(alpha);
+                break;
+            }
+            case "slide-horizontal": {
+                ObjectAnimator translationX = ObjectAnimator.ofFloat(screen, View.TRANSLATION_X, this.translationX);
+                translationX.setInterpolator(new AccelerateInterpolator());
+                translationX.setDuration(250);
+
+                set.playTogether(translationX, alpha);
+                break;
+            }
+            default: {
+                ObjectAnimator translationY = ObjectAnimator.ofFloat(screen, View.TRANSLATION_Y, this.translationY);
+                translationY.setInterpolator(new AccelerateInterpolator());
+                translationY.setDuration(250);
+
+                set.playTogether(translationY, alpha);
+                break;
+            }
+        }
+
         set.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
