@@ -46,10 +46,14 @@ public class BottomTabs extends AHBottomNavigation {
             setBackgroundColor(params.bottomTabsColor);
         }
         if (params.bottomTabsButtonColor.hasColor()) {
-            setInactiveColor(params.bottomTabsButtonColor.getColor());
+            if (getInactiveColor() != params.bottomTabsButtonColor.getColor()) {
+                setInactiveColor(params.bottomTabsButtonColor.getColor());
+            }
         }
         if (params.selectedBottomTabsButtonColor.hasColor()) {
-            setAccentColor(params.selectedBottomTabsButtonColor.getColor());
+            if (getAccentColor() != params.selectedBottomTabsButtonColor.getColor()) {
+                setAccentColor(params.selectedBottomTabsButtonColor.getColor());
+            }
         }
 
         setVisibility(params.bottomTabsHidden, true);
@@ -93,8 +97,10 @@ public class BottomTabs extends AHBottomNavigation {
 
     private void setBackgroundColor(StyleParams.Color bottomTabsColor) {
         if (bottomTabsColor.hasColor()) {
-            setDefaultBackgroundColor(bottomTabsColor.getColor());
-        } else {
+            if (bottomTabsColor.getColor() != getDefaultBackgroundColor()) {
+                setDefaultBackgroundColor(bottomTabsColor.getColor());
+            }
+        } else if (Color.WHITE != getDefaultBackgroundColor()){
             setDefaultBackgroundColor(Color.WHITE);
         }
     }
@@ -106,7 +112,7 @@ public class BottomTabs extends AHBottomNavigation {
     private void createVisibilityAnimator() {
         visibilityAnimator = new VisibilityAnimator(BottomTabs.this,
                 VisibilityAnimator.HideDirection.Down,
-                (int) ViewUtils.convertDpToPixel(Constants.BOTTOM_TABS_HEIGHT));
+                Constants.BOTTOM_TABS_HEIGHT);
     }
 
     private void setStyle() {
