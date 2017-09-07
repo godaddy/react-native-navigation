@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
-
 import com.reactnativenavigation.NavigationApplication;
 import com.reactnativenavigation.screens.animators.FadeInAnimator;
 import com.reactnativenavigation.screens.animators.FadeOutAnimator;
@@ -19,13 +18,9 @@ import com.reactnativenavigation.screens.animators.SlideOutFromLeftAnimator;
 import com.reactnativenavigation.utils.ViewUtils;
 import com.reactnativenavigation.views.sharedElementTransition.SharedElementsAnimator;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.annotation.Nullable;
 
 class ScreenAnimator {
     private static final String FADE_IN_ANIMATION = "fadeIn";
@@ -41,8 +36,8 @@ class ScreenAnimator {
 
     ScreenAnimator(Screen screen) {
         this.screen = screen;
-        translationY = 0.08f * ViewUtils.getScreenHeight();
-        translationX = 0.08f * ViewUtils.getScreenWidth();
+        translationY = 0.08f * ViewUtils.getWindowHeight(screen.activity);
+        translationX = 0.08f * ViewUtils.getWindowWidth(screen.activity);
     }
 
     /**
