@@ -4,186 +4,88 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
+
 import com.reactnativenavigation.NavigationApplication;
-import com.reactnativenavigation.screens.animators.FadeInAnimator;
-import com.reactnativenavigation.screens.animators.FadeOutAnimator;
-import com.reactnativenavigation.screens.animators.SlideInFromRightAnimator;
-import com.reactnativenavigation.screens.animators.SlideOutFromLeftAnimator;
 import com.reactnativenavigation.utils.ViewUtils;
 import com.reactnativenavigation.views.sharedElementTransition.SharedElementsAnimator;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-class ScreenAnimator {
-    private static final String FADE_IN_ANIMATION = "fadeIn";
-    private static final String FADE_OUT_ANIMATION = "fadeOut";
-    private static final String SLIDE_IN_FROM_RIGHT_ANIMATION = "slideInFromRight";
-    private static final String SLIDE_OUT_FROM_LEFT_ANIMATION = "slideOutFromLeft";
+import javax.annotation.Nullable;
 
+class ScreenAnimator {
+    private static final int DURATION = 250;
+    private static final int ALPHA_START_DELAY = 100;
+    private static final int ALPHA_SHORT_DURATION = 150;
+    private static final LinearInterpolator LINEAR_INTERPOLATOR = new LinearInterpolator();
+    private static final DecelerateInterpolator DECELERATE_INTERPOLATOR = new DecelerateInterpolator();
+    private static final AccelerateDecelerateInterpolator ACCELERATE_DECELERATE_INTERPOLATOR = new AccelerateDecelerateInterpolator();
+    private static final AccelerateInterpolator ACCELERATE_INTERPOLATOR = new AccelerateInterpolator();
     private final float translationY;
     private final float translationX;
     private Screen screen;
 
-    private static Map<String, CustomAnimator> customAnimators = new HashMap<>();
-
     ScreenAnimator(Screen screen) {
         this.screen = screen;
         translationY = 0.08f * ViewUtils.getWindowHeight(screen.activity);
-        translationX = 0.08f * ViewUtils.getWindowWidth(screen.activity);
+        translationX = ViewUtils.getWindowWidth(screen.activity);
     }
 
-    /**
-     * Method that tries to load and instantiate CustomAnimator based on fully qualified name
-     * @param customAnimator fully qualified name of CustomAnimator
-     * @return instance of CustomAnimator or null
-     */
-    private CustomAnimator loadCustomAnimator(String customAnimator) {
-        Class clazz;
-        try {
-            clazz = Class.forName(customAnimator);
-            return (CustomAnimator) clazz.newInstance();
-        } catch (Exception e) {
-            Log.e("loadCustomAnimator", "error loading CustomAnimator class '" + customAnimator + "'. " + e.getCause().getMessage(), e);
-            return null;
-        }
-    }
-
-    /**
-     * Method that returns animator identified by androidCustomAnimator bundle param, if applicable.
-     * @param animation bundle with attributes for CustomAnimator
-     * @param onAnimationEnd optional task to be run when screen is shown
-     * @return instance of CustomAnimator or null
-     */
-    private Animator resolveCustomAnimator(Bundle animation, Runnable onAnimationEnd) {
-        if (animation != null && animation.containsKey("androidCustomAnimator")) {
-            String androidCustomAnimator = animation.getString("androidCustomAnimator");
-            if (customAnimators == null) {
-                customAnimators = new HashMap<>();
-            }
-            // use cached copy
-            if (customAnimators.containsKey(androidCustomAnimator)) {
-                return customAnimators.get(androidCustomAnimator).createAnimator(animation, screen, onAnimationEnd);
-            }
-            CustomAnimator customAnimator = loadCustomAnimator(androidCustomAnimator);
-            if (customAnimator != null) {
-                customAnimators.put(androidCustomAnimator, customAnimator);
-                return customAnimator.createAnimator(animation, screen, onAnimationEnd);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Method that returns animator based on showScreenAnimation param. First it looks into built-in ones, then custom one and fallbacks to default one
-     * @param showScreenAnimation bundle with attributes for CustomAnimator
-     * @param onAnimationEnd optional task to be run when screen is shown
-     * @return animator to be used
-     */
-    private Animator resolveShowAnimator(Bundle showScreenAnimation, Runnable onAnimationEnd) {
-        if (showScreenAnimation != null && showScreenAnimation.containsKey("type")) {
-            switch (showScreenAnimation.getString("type")) {
-                case FADE_IN_ANIMATION: return new FadeInAnimator().createAnimator(showScreenAnimation, screen, onAnimationEnd);
-                case SLIDE_IN_FROM_RIGHT_ANIMATION: return new SlideInFromRightAnimator().createAnimator(showScreenAnimation, screen, onAnimationEnd);
-            }
-        }
-        Animator customAnimator = resolveCustomAnimator(showScreenAnimation, onAnimationEnd);
-        if (customAnimator != null) {
-            return customAnimator;
-        }
-        return createShowAnimator(onAnimationEnd);
-    }
-
-    /**
-     * Method that shows the new view, with optional animation and task to run when screen is shown
-     * @param animate flag whether to animate showing process or show straight away
-     * @param showScreenAnimation optional bundle with attributes for CustomAnimator
-     * @param onAnimationEnd optional task to be run when screen is shown
-     */
-    public void show(boolean animate, Bundle showScreenAnimation, final Runnable onAnimationEnd) {
+    public void show(boolean animate, final Runnable onAnimationEnd) {
         if (animate) {
-            resolveShowAnimator(showScreenAnimation, onAnimationEnd).start();
+            createShowAnimator(onAnimationEnd).start();
         } else {
             screen.setVisibility(View.VISIBLE);
-            if (onAnimationEnd != null) {
-                NavigationApplication.instance.runOnMainThread(onAnimationEnd, 200);
-            }
+            NavigationApplication.instance.runOnMainThread(onAnimationEnd, DURATION);
         }
     }
 
-    /**
-     * Method that returns animator based on hideScreenAnimation param. First it looks into built-in ones, then custom one and fallbacks to default one
-     * @param hideScreenAnimation bundle with attributes for CustomAnimator
-     * @param onAnimationEnd optional task to be run when screen is hidden
-     * @return animator to be used
-     */
-    private Animator resolveHideAnimator(Bundle hideScreenAnimation, Runnable onAnimationEnd) {
-        if (hideScreenAnimation != null && hideScreenAnimation.containsKey("type")) {
-            switch (hideScreenAnimation.getString("type")) {
-                case FADE_OUT_ANIMATION: return new FadeOutAnimator().createAnimator(hideScreenAnimation, screen, onAnimationEnd);
-                case SLIDE_OUT_FROM_LEFT_ANIMATION: return new SlideOutFromLeftAnimator().createAnimator(hideScreenAnimation, screen, onAnimationEnd);
-            }
-        }
-        Animator customAnimation = resolveCustomAnimator(hideScreenAnimation, onAnimationEnd);
-        if (customAnimation != null) {
-            return customAnimation;
-        }
-        return createHideAnimator(onAnimationEnd);
-    }
-
-    /**
-     * Method that hides the old view, with optional animation and task to run when screen is hidden
-     * @param animate flag whether to animate hiding process or hide straight away
-     * @param hideScreenAnimation optional bundle with attributes for CustomAnimator
-     * @param onAnimationEnd optional task to be run when screen is hidden
-     */
-    public void hide(boolean animate, Bundle hideScreenAnimation, Runnable onAnimationEnd) {
+    public void show(boolean animate) {
         if (animate) {
-            resolveHideAnimator(hideScreenAnimation, onAnimationEnd).start();
+            createShowAnimator(null).start();
+        } else {
+            screen.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void hide(boolean animate, Runnable onAnimationEnd) {
+        if (animate) {
+            createHideAnimator(onAnimationEnd).start();
         } else {
             screen.setVisibility(View.INVISIBLE);
-            if (onAnimationEnd != null) {
-                onAnimationEnd.run();
-            }
+            onAnimationEnd.run();
         }
     }
 
-    /**
-     * Default show screen animation
-     * @param onAnimationEnd optional task to be run when screen is shown
-     * @return default animator
-     */
     private Animator createShowAnimator(final @Nullable Runnable onAnimationEnd) {
         ObjectAnimator alpha = ObjectAnimator.ofFloat(screen, View.ALPHA, 0, 1);
-        alpha.setInterpolator(new DecelerateInterpolator());
-        alpha.setDuration(200);
+        alpha.setInterpolator(DECELERATE_INTERPOLATOR);
 
         AnimatorSet set = new AnimatorSet();
         switch (String.valueOf(this.screen.screenParams.animationType)) {
             case "fade": {
+                alpha.setDuration(DURATION);
                 set.play(alpha);
                 break;
             }
             case "slide-horizontal": {
                 ObjectAnimator translationX = ObjectAnimator.ofFloat(screen, View.TRANSLATION_X, this.translationX, 0);
-                translationX.setInterpolator(new DecelerateInterpolator());
-                translationX.setDuration(280);
-
-                set.playTogether(translationX, alpha);
+                translationX.setInterpolator(ACCELERATE_DECELERATE_INTERPOLATOR);
+                translationX.setDuration(DURATION);
+                set.play(translationX);
                 break;
             }
             default: {
                 ObjectAnimator translationY = ObjectAnimator.ofFloat(screen, View.TRANSLATION_Y, this.translationY, 0);
-                translationY.setInterpolator(new DecelerateInterpolator());
-                translationY.setDuration(280);
-
+                translationY.setInterpolator(DECELERATE_INTERPOLATOR);
+                translationY.setDuration(DURATION);
+                alpha.setDuration(ALPHA_SHORT_DURATION);
                 set.playTogether(translationY, alpha);
                 break;
             }
@@ -205,36 +107,30 @@ class ScreenAnimator {
         return set;
     }
 
-    /**
-     * Default hide screen animation
-     * @param onAnimationEnd optional task to be run when screen is hidden
-     * @return default animator
-     */
     private Animator createHideAnimator(final Runnable onAnimationEnd) {
         ObjectAnimator alpha = ObjectAnimator.ofFloat(screen, View.ALPHA, 0);
-        alpha.setInterpolator(new LinearInterpolator());
-        alpha.setStartDelay(100);
-        alpha.setDuration(150);
+        alpha.setInterpolator(DECELERATE_INTERPOLATOR);
 
         AnimatorSet set = new AnimatorSet();
         switch (String.valueOf(this.screen.screenParams.animationType)) {
             case "fade": {
+                alpha.setDuration(DURATION);
                 set.play(alpha);
                 break;
             }
             case "slide-horizontal": {
                 ObjectAnimator translationX = ObjectAnimator.ofFloat(screen, View.TRANSLATION_X, this.translationX);
-                translationX.setInterpolator(new AccelerateInterpolator());
-                translationX.setDuration(250);
-
-                set.playTogether(translationX, alpha);
+                translationX.setInterpolator(ACCELERATE_INTERPOLATOR);
+                translationX.setDuration(DURATION);
+                set.play(translationX);
                 break;
             }
             default: {
                 ObjectAnimator translationY = ObjectAnimator.ofFloat(screen, View.TRANSLATION_Y, this.translationY);
-                translationY.setInterpolator(new AccelerateInterpolator());
-                translationY.setDuration(250);
-
+                translationY.setInterpolator(ACCELERATE_INTERPOLATOR);
+                translationY.setDuration(DURATION);
+                alpha.setStartDelay(ALPHA_START_DELAY);
+                alpha.setDuration(ALPHA_SHORT_DURATION);
                 set.playTogether(translationY, alpha);
                 break;
             }
@@ -243,9 +139,7 @@ class ScreenAnimator {
         set.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                if (onAnimationEnd != null) {
-                    onAnimationEnd.run();
-                }
+                onAnimationEnd.run();
             }
         });
         return set;

@@ -348,64 +348,22 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
   {
     NSString *title = button[@"title"];
     UIImage *iconImage = nil;
-    NSString *buttonId = button[@"id"];
     id icon = button[@"icon"];
     if (icon) iconImage = [RCTConvert UIImage:icon];
     NSString *__nullable component = button[@"component"];
-
+    
     UIBarButtonItem *barButtonItem;
-    if(button[@"iosUIViewClass"] != nil){
-      Class customViewClass = NSClassFromString(button[@"iosUIViewClass"]);
-      UIView *customView = nil;
-      if(customViewClass != nil) {
-        customView = [(UIView *)[customViewClass alloc] init];
-        [customView setUserInteractionEnabled:NO];
-      }
-
-      UIButton *buttonItem;
-      if(customView != nil){
-        buttonItem = [[UIButton alloc] initWithFrame:customView.frame];
-      } else {
-        buttonItem = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 44, 44)];
-      }
-      [buttonItem addTarget:self action:@selector(onButtonPress:) forControlEvents:UIControlEventTouchUpInside];
-      objc_setAssociatedObject(buttonItem, &CALLBACK_ASSOCIATED_KEY, button[@"onPress"], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-      if(customView != nil) {
-        [buttonItem addSubview:customView];
-      }
-
-      barButtonItem = [[UIBarButtonItem alloc] init];
-      barButtonItem.target = self;
-      barButtonItem.style = UIBarButtonItemStylePlain;
-      barButtonItem.customView = buttonItem;
-
-      [barButtonItems addObject:barButtonItem];
-      if (buttonId)
-      {
-        objc_setAssociatedObject(buttonItem, &CALLBACK_ASSOCIATED_ID, buttonId, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-      }
-    } else {
-      if (iconImage)
-      {
-        barButtonItem = [[UIBarButtonItem alloc] initWithImage:iconImage style:UIBarButtonItemStylePlain target:self action:@selector(onButtonPress:)];
-      }
-      else if (title)
-      {
-        barButtonItem = [[UIBarButtonItem alloc] initWithTitle:title style:UIBarButtonItemStylePlain target:self action:@selector(onButtonPress:)];
-
-        NSMutableDictionary *buttonTextAttributes = [RCTHelpers textAttributesFromDictionary:button withPrefix:@"button"];
-        if (buttonTextAttributes.allKeys.count > 0) {
-          [barButtonItem setTitleTextAttributes:buttonTextAttributes forState:UIControlStateNormal];
-        }
-      }
-      else continue;
-      objc_setAssociatedObject(barButtonItem, &CALLBACK_ASSOCIATED_KEY, button[@"onPress"], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-      [barButtonItems addObject:barButtonItem];
-
-      NSString *buttonId = button[@"id"];
-      if (buttonId)
-      {
-        objc_setAssociatedObject(barButtonItem, &CALLBACK_ASSOCIATED_ID, buttonId, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    if (iconImage)
+    {
+      barButtonItem = [[UIBarButtonItem alloc] initWithImage:iconImage style:UIBarButtonItemStylePlain target:self action:@selector(onButtonPress:)];
+    }
+    else if (title)
+    {
+      barButtonItem = [[UIBarButtonItem alloc] initWithTitle:title style:UIBarButtonItemStylePlain target:self action:@selector(onButtonPress:)];
+      
+      NSMutableDictionary *buttonTextAttributes = [RCTHelpers textAttributesFromDictionary:button withPrefix:@"button"];
+      if (buttonTextAttributes.allKeys.count > 0) {
+        [barButtonItem setTitleTextAttributes:buttonTextAttributes forState:UIControlStateNormal];
       }
     }
     else if (component) {
@@ -427,25 +385,35 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
     if (disabledBool) {
       [barButtonItem setEnabled:NO];
     }
-
+    
     NSNumber *disableIconTintString = button[@"disableIconTint"];
     BOOL disableIconTint = disableIconTintString ? [disableIconTintString boolValue] : NO;
     if (disableIconTint) {
       [barButtonItem setImage:[barButtonItem.image imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal]];
     }
-
+    
+    if ([viewController isKindOfClass:[RCCViewController class]]) {
+      RCCViewController *rccViewController = ((RCCViewController*)viewController);
+      NSDictionary *navigatorStyle = rccViewController.navigatorStyle;
+      id disabledButtonColor = navigatorStyle[@"disabledButtonColor"];
+      if (disabledButtonColor) {
+        UIColor *color = [RCTConvert UIColor:disabledButtonColor];
+        [barButtonItem setTitleTextAttributes:@{NSForegroundColorAttributeName : color} forState:UIControlStateDisabled];
+      }
+    }
+    
     NSString *testID = button[@"testID"];
     if (testID)
     {
       barButtonItem.accessibilityIdentifier = testID;
     }
   }
-
+  
   if ([side isEqualToString:@"left"])
   {
     [viewController.navigationItem setLeftBarButtonItems:barButtonItems animated:animated];
   }
-
+  
   if ([side isEqualToString:@"right"])
   {
     [viewController.navigationItem setRightBarButtonItems:barButtonItems animated:animated];
