@@ -21,6 +21,8 @@ import com.reactnativenavigation.views.sharedElementTransition.SharedElementsAni
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 class ScreenAnimator {
     private static final String FADE_IN_ANIMATION = "fadeIn";

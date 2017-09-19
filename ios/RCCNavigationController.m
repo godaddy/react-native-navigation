@@ -398,6 +398,10 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
           [barButtonItem setTitleTextAttributes:buttonTextAttributes forState:UIControlStateNormal];
         }
       }
+      else if (component) {
+        RCTBridge *bridge = [[RCCManager sharedInstance] getBridge];
+        barButtonItem = [[RCCCustomBarButtonItem alloc] initWithComponentName:component passProps:button[@"passProps"] bridge:bridge];
+      }
       else continue;
       objc_setAssociatedObject(barButtonItem, &CALLBACK_ASSOCIATED_KEY, button[@"onPress"], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
       [barButtonItems addObject:barButtonItem];
@@ -408,20 +412,6 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
         objc_setAssociatedObject(barButtonItem, &CALLBACK_ASSOCIATED_ID, buttonId, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
       }
     }
-    else if (component) {
-      RCTBridge *bridge = [[RCCManager sharedInstance] getBridge];
-      barButtonItem = [[RCCCustomBarButtonItem alloc] initWithComponentName:component passProps:button[@"passProps"] bridge:bridge];
-    }
-    else continue;
-    objc_setAssociatedObject(barButtonItem, &CALLBACK_ASSOCIATED_KEY, button[@"onPress"], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    [barButtonItems addObject:barButtonItem];
-    
-    NSString *buttonId = button[@"id"];
-    if (buttonId)
-    {
-      objc_setAssociatedObject(barButtonItem, &CALLBACK_ASSOCIATED_ID, buttonId, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-    
     NSNumber *disabled = button[@"disabled"];
     BOOL disabledBool = disabled ? [disabled boolValue] : NO;
     if (disabledBool) {
