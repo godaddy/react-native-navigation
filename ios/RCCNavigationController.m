@@ -3,8 +3,10 @@
 #import "RCCManager.h"
 #import <React/RCTEventDispatcher.h>
 #import <React/RCTConvert.h>
+#import <React/RCTRootView.h>
 #import <objc/runtime.h>
 #import "RCCTitleViewHelper.h"
+#import "RCCCustomBarButtonItem.h"
 #import "UIViewController+Rotation.h"
 #import "RCTHelpers.h"
 
@@ -34,7 +36,12 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
 
   RCCViewController *viewController = [[RCCViewController alloc] initWithComponent:component passProps:passProps navigatorStyle:navigatorStyle globalProps:globalProps bridge:bridge];
   if (!viewController) return nil;
+<<<<<<< HEAD
 
+=======
+  viewController.controllerId = props[@"id"];
+  
+>>>>>>> master
   NSArray *leftButtons = props[@"leftButtons"];
   if (leftButtons)
   {
@@ -70,6 +77,7 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
   {
     NSString *component = actionParams[@"component"];
     if (!component) return;
+<<<<<<< HEAD
 
     NSDictionary *passProps = actionParams[@"passProps"];
     NSDictionary *navigatorStyle = actionParams[@"style"];
@@ -98,10 +106,53 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
 
       [mergedStyle addEntriesFromDictionary:navigatorStyle];
       navigatorStyle = mergedStyle;
+=======
+    
+    NSMutableDictionary *passProps = [actionParams[@"passProps"] mutableCopy];
+    passProps[GLOBAL_SCREEN_ACTION_COMMAND_TYPE] = COMMAND_TYPE_PUSH;
+    passProps[GLOBAL_SCREEN_ACTION_TIMESTAMP] = actionParams[GLOBAL_SCREEN_ACTION_TIMESTAMP];
+    NSDictionary *navigatorStyle = actionParams[@"style"];
+    
+    NSNumber *keepStyleAcrossPush = [[RCCManager sharedInstance] getAppStyle][@"keepStyleAcrossPush"];
+    BOOL keepStyleAcrossPushBool = keepStyleAcrossPush ? [keepStyleAcrossPush boolValue] : YES;
+    
+    if (keepStyleAcrossPushBool) {
+      
+      if ([self.topViewController isKindOfClass:[RCCViewController class]])
+      {
+        RCCViewController *parent = (RCCViewController*)self.topViewController;
+        NSMutableDictionary *mergedStyle = [NSMutableDictionary dictionaryWithDictionary:parent.navigatorStyle];
+        
+        // there are a few styles that we don't want to remember from our parent (they should be local)
+        [mergedStyle removeObjectForKey:@"navBarHidden"];
+        [mergedStyle removeObjectForKey:@"statusBarHidden"];
+        [mergedStyle removeObjectForKey:@"navBarHideOnScroll"];
+        [mergedStyle removeObjectForKey:@"drawUnderNavBar"];
+        [mergedStyle removeObjectForKey:@"drawUnderTabBar"];
+        [mergedStyle removeObjectForKey:@"statusBarBlur"];
+        [mergedStyle removeObjectForKey:@"navBarBlur"];
+        [mergedStyle removeObjectForKey:@"navBarTranslucent"];
+        [mergedStyle removeObjectForKey:@"statusBarHideWithNavBar"];
+        [mergedStyle removeObjectForKey:@"autoAdjustScrollViewInsets"];
+        [mergedStyle removeObjectForKey:@"statusBarTextColorSchemeSingleScreen"];
+        [mergedStyle removeObjectForKey:@"disabledBackGesture"];
+        [mergedStyle removeObjectForKey:@"disabledSimultaneousGesture"];
+        [mergedStyle removeObjectForKey:@"navBarCustomView"];
+        [mergedStyle removeObjectForKey:@"navBarComponentAlignment"];
+        
+        [mergedStyle addEntriesFromDictionary:navigatorStyle];
+        navigatorStyle = mergedStyle;
+      }
+>>>>>>> master
     }
 
     RCCViewController *viewController = [[RCCViewController alloc] initWithComponent:component passProps:passProps navigatorStyle:navigatorStyle globalProps:nil bridge:bridge];
+<<<<<<< HEAD
 
+=======
+    viewController.controllerId = passProps[@"screenInstanceID"];
+    
+>>>>>>> master
     [self processTitleView:viewController
                      props:actionParams
                      style:navigatorStyle];
@@ -202,12 +253,25 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
   {
     NSString *component = actionParams[@"component"];
     if (!component) return;
+<<<<<<< HEAD
 
     NSDictionary *passProps = actionParams[@"passProps"];
+=======
+    
+    NSMutableDictionary *passProps = [actionParams[@"passProps"] mutableCopy];
+    passProps[@"commantType"] = @"resetTo";
+>>>>>>> master
     NSDictionary *navigatorStyle = actionParams[@"style"];
 
     RCCViewController *viewController = [[RCCViewController alloc] initWithComponent:component passProps:passProps navigatorStyle:navigatorStyle globalProps:nil bridge:bridge];
+<<<<<<< HEAD
 
+=======
+    viewController.controllerId = passProps[@"screenInstanceID"];
+    
+    viewController.navigationItem.hidesBackButton = YES;
+    
+>>>>>>> master
     [self processTitleView:viewController
                      props:actionParams
                      style:navigatorStyle];
@@ -335,6 +399,10 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
     NSString *buttonId = button[@"id"];
     id icon = button[@"icon"];
     if (icon) iconImage = [RCTConvert UIImage:icon];
+<<<<<<< HEAD
+=======
+    NSString *__nullable component = button[@"component"];
+>>>>>>> master
 
     UIBarButtonItem *barButtonItem;
     if(button[@"iosUIViewClass"] != nil){
@@ -391,7 +459,24 @@ NSString const *CALLBACK_ASSOCIATED_ID = @"RCCNavigationController.CALLBACK_ASSO
         objc_setAssociatedObject(barButtonItem, &CALLBACK_ASSOCIATED_ID, buttonId, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
       }
     }
+<<<<<<< HEAD
 
+=======
+    else if (component) {
+      RCTBridge *bridge = [[RCCManager sharedInstance] getBridge];
+      barButtonItem = [[RCCCustomBarButtonItem alloc] initWithComponentName:component passProps:button[@"passProps"] bridge:bridge];
+    }
+    else continue;
+    objc_setAssociatedObject(barButtonItem, &CALLBACK_ASSOCIATED_KEY, button[@"onPress"], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    [barButtonItems addObject:barButtonItem];
+    
+    NSString *buttonId = button[@"id"];
+    if (buttonId)
+    {
+      objc_setAssociatedObject(barButtonItem, &CALLBACK_ASSOCIATED_ID, buttonId, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    
+>>>>>>> master
     NSNumber *disabled = button[@"disabled"];
     BOOL disabledBool = disabled ? [disabled boolValue] : NO;
     if (disabledBool) {
