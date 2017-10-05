@@ -77,6 +77,8 @@ On Android, four button types are supported by default without the need to provi
 * accept
 * sideMenu
 
+Additionally, you can also render a custom icon by passing a fully qualified name of Android `Drawable` class as value to the key `androidDrawableClass`. 
+
 #### Custom Navigation Buttons
 
 On iOS, react-native-navigation uses `UIBarButtonItem` to display all items in the navigation bar. Instead of using images or text for normal `UIBarButtonItem`s, you can supply a custom component to be displayed within a custom view of a `UIBarButtonItem`, using the `component` property when specifying a navigation button.
