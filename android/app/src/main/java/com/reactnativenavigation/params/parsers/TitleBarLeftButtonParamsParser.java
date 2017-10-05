@@ -12,6 +12,10 @@ public class TitleBarLeftButtonParamsParser extends TitleBarButtonParamsParser {
         if (params.isEmpty()) {
             return leftButtonParams;
         }
+        if (hasKey(params, "androidDrawableClass")) {
+            leftButtonParams.icon = ImageLoader.loadDrawableFromClassName(params.getString("androidDrawableClass"));
+            return leftButtonParams;
+        }
         leftButtonParams.iconState = getIconStateFromId(leftButtonParams.eventId);
         return leftButtonParams;
     }
