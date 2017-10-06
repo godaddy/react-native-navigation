@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import com.balysv.materialmenu.MaterialMenuDrawable;
 import com.reactnativenavigation.params.TitleBarLeftButtonParams;
+import com.reactnativenavigation.react.ImageLoader;
 
 public class TitleBarLeftButtonParamsParser extends TitleBarButtonParamsParser {
 
