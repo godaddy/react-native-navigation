@@ -10,6 +10,7 @@ import android.support.v4.util.Pair;
 import android.support.v7.app.ActionBar;
 import android.view.Gravity;
 import android.view.ViewGroup;
+import android.view.ViewOutlineProvider;
 import android.widget.FrameLayout;
 
 import com.facebook.react.bridge.Callback;
@@ -36,12 +37,16 @@ public class TopBar extends AppBarLayout {
     private VisibilityAnimator visibilityAnimator;
     @Nullable
     private Pair<String, ContentView> reactView;
+    private ViewOutlineProvider outlineProvider;
 
     public TopBar(Context context) {
         super(context);
         setId(ViewUtils.generateViewId());
         createTopBarVisibilityAnimator();
         createLayout();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            outlineProvider = getOutlineProvider();
+        }
     }
 
     private void createTopBarVisibilityAnimator() {
@@ -93,8 +98,8 @@ public class TopBar extends AppBarLayout {
         titleBar.setTitle(title, styleParams);
     }
 
-    public void setSubtitle(String subtitle) {
-        titleBar.setSubtitle(subtitle);
+    public void setSubtitle(String subtitle, StyleParams styleParams) {
+        titleBar.setSubtitle(subtitle, styleParams);
     }
 
     public void setReactView(@NonNull StyleParams styleParams) {
@@ -104,10 +109,11 @@ public class TopBar extends AppBarLayout {
             }
             unmountReactView();
             reactView = new Pair<>(styleParams.topBarReactView, createReactView(styleParams));
+            int height = styleParams.hasCustomTitleBarHeight() ? (int) ViewUtils.convertDpToPixel(styleParams.titleBarHeight) : ViewUtils.getToolBarHeight();
             if ("fill".equals(styleParams.topBarReactViewAlignment)) {
-                addReactViewFill(reactView.second);
+                addReactViewFill(reactView.second, height);
             } else {
-                addCenteredReactView(reactView.second);
+                addCenteredReactView(reactView.second, height);
             }
         } else {
             unmountReactView();
@@ -131,6 +137,23 @@ public class TopBar extends AppBarLayout {
                 NavigationParams.EMPTY,
                 styleParams.topBarReactViewInitialProps
         );
+    }
+
+    private void addReactViewFill(ContentView view, int height) {
+        view.setLayoutParams(new LayoutParams(MATCH_PARENT, height));
+        titleBar.addView(view);
+    }
+
+    private void addCenteredReactView(final ContentView view, int height) {
+        titleBar.addView(view, new LayoutParams(WRAP_CONTENT, height));
+        view.setOnDisplayListener(new Screen.OnDisplayListener() {
+            @Override
+            public void onDisplay() {
+                view.getLayoutParams().width = (int) (float) view.getChildAt(0).getMeasuredWidth();
+                ((ActionBar.LayoutParams) view.getLayoutParams()).gravity = Gravity.CENTER;
+                view.requestLayout();
+            }
+        });
     }
 
     private void addReactViewFill(ContentView view) {
@@ -166,19 +189,17 @@ public class TopBar extends AppBarLayout {
         titleBar.setStyle(styleParams);
         setReactView(styleParams);
         setTopTabsStyle(styleParams);
-        if (!styleParams.topBarElevationShadowEnabled) {
-            disableElevationShadow();
-        }
+        setElevationEnabled(styleParams.topBarElevationShadowEnabled);
     }
 
     private void setTransparent() {
         setBackgroundColor(Color.TRANSPARENT);
-        disableElevationShadow();
+        setElevationEnabled(false);
     }
 
-    private void disableElevationShadow() {
+    private void setElevationEnabled (boolean enabled) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setOutlineProvider(null);
+            setOutlineProvider(enabled ? outlineProvider : null);
         }
     }
 
@@ -212,6 +233,7 @@ public class TopBar extends AppBarLayout {
         topTabs.setTopTabsTextColor(style);
         topTabs.setSelectedTabIndicatorStyle(style);
         topTabs.setScrollable(style);
+        topTabs.setTopTabsTextFontFamily(style);
     }
 
     public void showContextualMenu(final ContextualMenuParams params, StyleParams styleParams, Callback onButtonClicked) {
@@ -260,7 +282,16 @@ public class TopBar extends AppBarLayout {
     }
 
     public void setVisible(boolean visible, boolean animate) {
-        titleBar.setVisibility(!visible);
-        visibilityAnimator.setVisible(visible, animate);
+        if (visible) {
+            titleBar.setVisibility(false);
+            visibilityAnimator.setVisible(true, animate, null);
+        } else {
+            visibilityAnimator.setVisible(false, animate, new Runnable() {
+                @Override
+                public void run() {
+                    titleBar.setVisibility(true);
+                }
+            });
+        }
     }
 }

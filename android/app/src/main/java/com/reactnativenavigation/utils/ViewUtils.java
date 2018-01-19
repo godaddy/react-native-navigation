@@ -79,14 +79,14 @@ public class ViewUtils {
         WindowManager wm = (WindowManager) NavigationApplication.instance.getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics metrics = new DisplayMetrics();
         wm.getDefaultDisplay().getMetrics(metrics);
-        return metrics.heightPixels;
+        return metrics.widthPixels;
     }
 
     public static int getScreenWidth() {
         WindowManager wm = (WindowManager) NavigationApplication.instance.getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics metrics = new DisplayMetrics();
         wm.getDefaultDisplay().getMetrics(metrics);
-        return metrics.widthPixels;
+        return metrics.heightPixels;
     }
 
     public static float getWindowWidth(Activity activity) {
@@ -129,7 +129,7 @@ public class ViewUtils {
     public static <T> T findChildByClass(ViewGroup root, Class clazz, Matcher<T> matcher) {
         for (int i = 0; i < root.getChildCount(); i++) {
             View view = root.getChildAt(i);
-            if (clazz.isAssignableFrom(view.getClass())) {
+            if (clazz.isAssignableFrom(view.getClass()) && (matcher == null || matcher.match((T) view))) {
                 return (T) view;
             }
 

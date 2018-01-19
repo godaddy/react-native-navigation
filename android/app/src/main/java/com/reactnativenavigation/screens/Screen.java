@@ -1,13 +1,9 @@
 package com.reactnativenavigation.screens;
 
-import android.annotation.TargetApi;
+import android.animation.LayoutTransition;
 import android.content.res.Configuration;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.view.Window;
 import android.widget.RelativeLayout;
 
 import com.facebook.react.bridge.Callback;
@@ -28,6 +24,8 @@ import com.reactnativenavigation.params.StyleParams;
 import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.params.TitleBarLeftButtonParams;
 import com.reactnativenavigation.params.parsers.StyleParamsParser;
+import com.reactnativenavigation.utils.NavigationBar;
+import com.reactnativenavigation.utils.StatusBar;
 import com.reactnativenavigation.views.ContentView;
 import com.reactnativenavigation.views.LeftButtonOnClickListener;
 import com.reactnativenavigation.views.TopBar;
@@ -64,6 +62,7 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
         createViews();
         EventBus.instance.register(this);
         sharedElements = new SharedElements();
+        setDrawUnderStatusBar(styleParams.drawUnderStatusBar);
     }
 
     public void registerSharedElement(SharedElementTransition toView, String key) {
@@ -105,12 +104,18 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
 
     public void setStyle() {
         setStatusBarColor(styleParams.statusBarColor);
+        setStatusBarHidden(styleParams.statusBarHidden);
         setStatusBarTextColorScheme(styleParams.statusBarTextColorScheme);
         setNavigationBarColor(styleParams.navigationBarColor);
+        setDrawUnderStatusBar(styleParams.drawUnderStatusBar);
         topBar.setStyle(styleParams);
         if (styleParams.screenBackgroundColor.hasColor()) {
             setBackgroundColor(styleParams.screenBackgroundColor.getColor());
         }
+    }
+
+    public void updateBottomTabsVisibility(boolean hidden) {
+        styleParams.bottomTabsHidden = hidden;
     }
 
     private void createViews() {
@@ -133,7 +138,7 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
             topBar.setReactView(screenParams.styleParams);
         } else {
             topBar.setTitle(screenParams.title, styleParams);
-            topBar.setSubtitle(screenParams.subtitle);
+            topBar.setSubtitle(screenParams.subtitle, styleParams);
         }
     }
 
@@ -163,47 +168,24 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
         addView(topBar, new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void setStatusBarColor(StyleParams.Color statusBarColor) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return;
-
-        final Window window = ((NavigationActivity) activity).getScreenWindow();
-        if (statusBarColor.hasColor()) {
-            window.setStatusBarColor(statusBarColor.getColor());
-        } else {
-            window.setStatusBarColor(Color.BLACK);
-        }
+        StatusBar.setColor(((NavigationActivity) activity).getScreenWindow(), statusBarColor);
     }
 
-    @TargetApi(Build.VERSION_CODES.M)
+    private void setStatusBarHidden(boolean statusBarHidden) {
+        StatusBar.setHidden(((NavigationActivity) activity).getScreenWindow(), statusBarHidden);
+    }
+
+    private void setDrawUnderStatusBar(boolean drawUnderStatusBar) {
+        StatusBar.displayOverScreen(this, drawUnderStatusBar);
+    }
+
     private void setStatusBarTextColorScheme(StatusBarTextColorScheme textColorScheme) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return;
-        if (StatusBarTextColorScheme.Dark.equals(textColorScheme)) {
-            int flags = getSystemUiVisibility();
-            flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
-            setSystemUiVisibility(flags);
-        } else {
-            clearLightStatusBar();
-        }
+        StatusBar.setTextColorScheme(this, textColorScheme);
     }
 
-    public void clearLightStatusBar() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return;
-        int flags = getSystemUiVisibility();
-        flags &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
-        setSystemUiVisibility(flags);
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void setNavigationBarColor(StyleParams.Color navigationBarColor) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return;
-
-        final Window window = ((NavigationActivity) activity).getScreenWindow();
-        if (navigationBarColor.hasColor()) {
-            window.setNavigationBarColor(navigationBarColor.getColor());
-        } else {
-            window.setNavigationBarColor(Color.BLACK);
-        }
+        NavigationBar.setColor(((NavigationActivity) activity).getScreenWindow(), navigationBarColor);
     }
 
     public abstract void unmountReactView();
@@ -224,6 +206,12 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
 
     public void setTopBarVisible(boolean visible, boolean animate) {
         screenParams.styleParams.titleBarHidden = !visible;
+        if (animate && styleParams.drawScreenBelowTopBar) {
+            setLayoutTransition(new LayoutTransition());
+            getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
+        } else {
+            setLayoutTransition(null);
+        }
         topBar.setVisible(visible, animate);
     }
 
@@ -232,7 +220,7 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
     }
 
     public void setTitleBarSubtitle(String subtitle) {
-        topBar.setSubtitle(subtitle);
+        topBar.setSubtitle(subtitle, styleParams);
     }
 
     public void setTitleBarRightButtons(String navigatorEventId, List<TitleBarButtonParams> titleBarButtons) {
@@ -272,9 +260,15 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
 
     public abstract void setOnDisplayListener(OnDisplayListener onContentViewDisplayedListener);
 
+    public void show(NavigationType type) {
+        NavigationApplication.instance.getEventEmitter().sendWillAppearEvent(getScreenParams(), type);
+        NavigationApplication.instance.getEventEmitter().sendDidAppearEvent(getScreenParams(), type);
+        screenAnimator.show(screenParams.animateScreenTransitions);
+    }
+
     public void show(boolean animated, final NavigationType type) {
         NavigationApplication.instance.getEventEmitter().sendWillAppearEvent(getScreenParams(), type);
-        screenAnimator.show(animated, screenParams.showScreenAnimation, new Runnable() {
+        screenAnimator.show(animated, new Runnable() {
             @Override
             public void run() {
                 NavigationApplication.instance.getEventEmitter().sendDidAppearEvent(getScreenParams(), type);
@@ -285,7 +279,7 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
     public void show(boolean animated, final Runnable onAnimationEnd, final NavigationType type) {
         NavigationApplication.instance.getEventEmitter().sendWillAppearEvent(getScreenParams(), type);
         setStyle();
-        screenAnimator.show(animated, screenParams.showScreenAnimation, new Runnable() {
+        screenAnimator.show(animated, new Runnable() {
             @Override
             public void run() {
                 NavigationApplication.instance.getEventEmitter().sendDidAppearEvent(getScreenParams(), type);
@@ -338,7 +332,7 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
 
     private void hide(boolean animated, final Runnable onAnimatedEnd, final NavigationType type) {
         NavigationApplication.instance.getEventEmitter().sendWillDisappearEvent(getScreenParams(), type);
-        screenAnimator.hide(animated, screenParams.hideScreenAnimation, new Runnable() {
+        screenAnimator.hide(animated, new Runnable() {
             @Override
             public void run() {
                 NavigationApplication.instance.getEventEmitter().sendDidDisappearEvent(getScreenParams(), type);

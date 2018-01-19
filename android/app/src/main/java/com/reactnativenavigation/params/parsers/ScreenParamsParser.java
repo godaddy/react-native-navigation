@@ -3,6 +3,7 @@ package com.reactnativenavigation.params.parsers;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
+import com.reactnativenavigation.params.AppStyle;
 import com.reactnativenavigation.params.NavigationParams;
 import com.reactnativenavigation.params.PageParams;
 import com.reactnativenavigation.params.ScreenParams;
@@ -57,14 +58,7 @@ public class ScreenParamsParser extends Parser {
         result.animateScreenTransitions = new AnimationParser(params).parse();
         result.sharedElementsTransitions = getSharedElementsTransitions(params);
 
-        if (hasKey(params, SHOW_SCREEN_ANIMATION)) {
-            result.showScreenAnimation = params.getBundle(SHOW_SCREEN_ANIMATION);
-        }
- 
-        if (hasKey(params, HIDE_SCREEN_ANIMATION)) {
-            result.hideScreenAnimation = params.getBundle(HIDE_SCREEN_ANIMATION);
-        }
-        result.animationType = params.getString(ANIMATION_TYPE);
+        result.animationType = params.getString(ANIMATION_TYPE, AppStyle.appStyle.screenAnimationType);
 
         return result;
     }

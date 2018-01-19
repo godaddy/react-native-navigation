@@ -34,6 +34,39 @@ class NavigationTypes extends React.Component {
     });
   };
 
+<<<<<<< HEAD:example/src/screens/NavigationTypes.js
+=======
+  previewScreen = () => {
+    this.props.navigator.push({
+      screen: 'example.Types.Push',
+      title: 'New Screen',
+      previewCommit: true,
+      previewHeight: 250,
+      previewView: this.previewRef,
+      previewActions: [{
+        id: 'action-cancel',
+        title: 'Cancel'
+      }, {
+        id: 'action-delete',
+        title: 'Delete',
+        actions: [{
+          id: 'action-delete-sure',
+          title: 'Are you sure?',
+          style: 'destructive'
+        }]
+      }]
+    });
+  };
+
+  pushListScreen = () => {
+    console.log('RANG', 'pushListScreen');
+    this.props.navigator.push({
+      screen: 'example.Types.ListScreen',
+      title: 'List Screen',
+    });
+  };
+
+>>>>>>> dc07bbbda3741029681615041060e38be06c384e:example/src/screens/NavigationTypes.js
   pushCustomTopBarScreen = () => {
     this.props.navigator.push({
       screen: 'example.Types.CustomTopBarScreen'
@@ -99,6 +132,17 @@ class NavigationTypes extends React.Component {
       <ScrollView style={styles.container}>
         <Row title={'Toggle Drawer'} onPress={this.toggleDrawer}/>
         <Row title={'Push Screen'} testID={'pushScreen'} onPress={this.pushScreen}/>
+<<<<<<< HEAD:example/src/screens/NavigationTypes.js
+=======
+        <Row
+          ref={(ref) => (this.previewRef = ref)}
+          title={'Preview Screen'}
+          testID={'previewScreen'}
+          onPress={this.pushScreen}
+          onPressIn={this.previewScreen}
+        />
+        {/*<Row title={'Push List Screen'} testID={'pushListScreen'} onPress={this.pushListScreen}/>*/}
+>>>>>>> dc07bbbda3741029681615041060e38be06c384e:example/src/screens/NavigationTypes.js
         <Row title={'Custom TopBar'} onPress={this.pushCustomTopBarScreen}/>
         <Row title={'Custom Button'} onPress={this.pushCustomButtonScreen}/>
         <Row title={'Top Tabs Screen'} onPress={this.pushTopTabsScreen} platform={'android'}/>

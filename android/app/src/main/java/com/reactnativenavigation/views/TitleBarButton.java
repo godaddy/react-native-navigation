@@ -70,7 +70,7 @@ class TitleBarButton implements MenuItem.OnMenuItemClickListener {
             @Override
             public void run() {
                 ActionMenuView actionMenuView = ViewUtils.findChildByClass(parent, ActionMenuView.class);
-                if (actionMenuView != null) {
+                if (actionMenuView != null && actionMenuView.getChildAt(index) != null) {
                     actionMenuView.getChildAt(index).setOnLongClickListener(null);
                 }
             }
@@ -114,7 +114,7 @@ class TitleBarButton implements MenuItem.OnMenuItemClickListener {
     @NonNull
     private ArrayList<View> findActualTextViewInMenuByLabel() {
         ArrayList<View> outViews = new ArrayList<>();
-        parent.findViewsWithText(outViews, buttonParams.label, View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION);
+        parent.findViewsWithText(outViews, buttonParams.label, View.FIND_VIEWS_WITH_TEXT);
         return outViews;
     }
 
