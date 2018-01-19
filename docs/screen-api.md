@@ -18,6 +18,16 @@ this.props.navigator.push({
   backButtonHidden: false, // hide the back button altogether (optional)
   navigatorStyle: {}, // override the navigator style for the pushed screen (optional)
   navigatorButtons: {}, // override the nav buttons for the pushed screen (optional)
+  showScreenAnimation: {  // overrides the default show screen animation (optional)
+    type: 'fadeIn', // 'slideInFromRight', type of show screen animation
+    durationMs: 250,// duration of show screen animation in ms, (optional, default 300)
+    androidCustomAnimator: 'com.example.MyCustomAnimator' // android only, fully qualified name of class implementing CustomAnimator interface. Will be used for creating show screen animation, if type is not specified.
+  },
+  hideScreenAnimation: { // overrides the default hide screen animation (optional)
+    type: 'fadeOut', // 'slideOutFromLeft', type of hide screen animation
+    durationMs: 250, // duration of hide screen animation in ms, (optional, default 300)
+    androidCustomAnimator: 'com.example.MyCustomAnimator' // android only, fully qualified name of class implementing CustomAnimator interface. Will be used for creating hide screen animation, if type is not specified.
+  }
   // enable peek and pop - commited screen will have `isPreview` prop set as true.
   previewView: undefined, // react ref or node id (optional)
   previewHeight: undefined, // set preview height, defaults to full height (optional)
