@@ -268,7 +268,7 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
 
     public void show(boolean animated, final NavigationType type) {
         NavigationApplication.instance.getEventEmitter().sendWillAppearEvent(getScreenParams(), type);
-        screenAnimator.show(animated, new Runnable() {
+        screenAnimator.show(animated, screenParams.showScreenAnimation, new Runnable() {
             @Override
             public void run() {
                 NavigationApplication.instance.getEventEmitter().sendDidAppearEvent(getScreenParams(), type);
@@ -279,7 +279,7 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
     public void show(boolean animated, final Runnable onAnimationEnd, final NavigationType type) {
         NavigationApplication.instance.getEventEmitter().sendWillAppearEvent(getScreenParams(), type);
         setStyle();
-        screenAnimator.show(animated, new Runnable() {
+        screenAnimator.show(animated, screenParams.showScreenAnimation, new Runnable() {
             @Override
             public void run() {
                 NavigationApplication.instance.getEventEmitter().sendDidAppearEvent(getScreenParams(), type);
@@ -332,7 +332,7 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
 
     private void hide(boolean animated, final Runnable onAnimatedEnd, final NavigationType type) {
         NavigationApplication.instance.getEventEmitter().sendWillDisappearEvent(getScreenParams(), type);
-        screenAnimator.hide(animated, new Runnable() {
+        screenAnimator.hide(animated, screenParams.showScreenAnimation, new Runnable() {
             @Override
             public void run() {
                 NavigationApplication.instance.getEventEmitter().sendDidDisappearEvent(getScreenParams(), type);
