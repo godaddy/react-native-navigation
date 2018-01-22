@@ -4,17 +4,18 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.view.View;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
-import android.view.animation.LinearInterpolator;
-import com.reactnativenavigation.NavigationApplication;
 import com.reactnativenavigation.screens.animators.FadeInAnimator;
 import com.reactnativenavigation.screens.animators.FadeOutAnimator;
 import com.reactnativenavigation.screens.animators.SlideInFromRightAnimator;
 import com.reactnativenavigation.screens.animators.SlideOutFromLeftAnimator;
+import com.reactnativenavigation.NavigationApplication;
 import com.reactnativenavigation.utils.ViewUtils;
 import com.reactnativenavigation.views.sharedElementTransition.SharedElementsAnimator;
 
@@ -24,22 +25,32 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
+
 class ScreenAnimator {
+    private static final int DURATION = 250;
+    private static final DecelerateInterpolator DECELERATE_INTERPOLATOR = new DecelerateInterpolator();
     private static final String FADE_IN_ANIMATION = "fadeIn";
     private static final String FADE_OUT_ANIMATION = "fadeOut";
     private static final String SLIDE_IN_FROM_RIGHT_ANIMATION = "slideInFromRight";
     private static final String SLIDE_OUT_FROM_LEFT_ANIMATION = "slideOutFromLeft";
-
     private final float translationY;
     private final float translationX;
     private Screen screen;
-
+    
     private static Map<String, CustomAnimator> customAnimators = new HashMap<>();
 
     ScreenAnimator(Screen screen) {
         this.screen = screen;
         translationY = 0.08f * ViewUtils.getWindowHeight(screen.activity);
         translationX = 0.08f * ViewUtils.getWindowWidth(screen.activity);
+    }
+
+    public void show(boolean animate) {
+        if (animate) {
+            createShowAnimator(null).start();
+        } else {
+            screen.setVisibility(View.VISIBLE);
+        }
     }
 
     /**
@@ -170,6 +181,8 @@ class ScreenAnimator {
         AnimatorSet set = new AnimatorSet();
         switch (String.valueOf(this.screen.screenParams.animationType)) {
             case "fade": {
+                alpha.setDuration(DURATION);
+                alpha.setInterpolator(DECELERATE_INTERPOLATOR);
                 set.play(alpha);
                 break;
             }
@@ -221,6 +234,8 @@ class ScreenAnimator {
         AnimatorSet set = new AnimatorSet();
         switch (String.valueOf(this.screen.screenParams.animationType)) {
             case "fade": {
+                alpha.setDuration(DURATION);
+                alpha.setInterpolator(DECELERATE_INTERPOLATOR);
                 set.play(alpha);
                 break;
             }

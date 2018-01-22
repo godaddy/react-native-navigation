@@ -32,6 +32,7 @@ public class SlideInFromRightAnimator implements CustomAnimator {
             }
         });
 
+
         return slideInFromRight;
     }
 }
