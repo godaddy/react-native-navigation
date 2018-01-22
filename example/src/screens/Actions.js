@@ -151,10 +151,7 @@ class Actions extends React.Component {
     return (
       <ScrollView style={styles.container}>
         <Row title={'Set Title'} onPress={this.setTitle} />
-<<<<<<< HEAD
-=======
         <Row title={'Set Subtitle'} onPress={this.setSubtitle} />
->>>>>>> dc07bbbda3741029681615041060e38be06c384e
         <Row title={'Toggle Tabs'} onPress={this.toggleTabs} />
         <Row title={'Set Tab Badge'} onPress={this.setTabBadge} />
         <Row title={'Switch To Tab 0'} onPress={this.switchToTab} />

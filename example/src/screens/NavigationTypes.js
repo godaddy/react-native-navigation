@@ -34,8 +34,6 @@ class NavigationTypes extends React.Component {
     });
   };
 
-<<<<<<< HEAD:example/src/screens/NavigationTypes.js
-=======
   previewScreen = () => {
     this.props.navigator.push({
       screen: 'example.Types.Push',
@@ -66,7 +64,6 @@ class NavigationTypes extends React.Component {
     });
   };
 
->>>>>>> dc07bbbda3741029681615041060e38be06c384e:example/src/screens/NavigationTypes.js
   pushCustomTopBarScreen = () => {
     this.props.navigator.push({
       screen: 'example.Types.CustomTopBarScreen'
@@ -132,8 +129,6 @@ class NavigationTypes extends React.Component {
       <ScrollView style={styles.container}>
         <Row title={'Toggle Drawer'} onPress={this.toggleDrawer}/>
         <Row title={'Push Screen'} testID={'pushScreen'} onPress={this.pushScreen}/>
-<<<<<<< HEAD:example/src/screens/NavigationTypes.js
-=======
         <Row
           ref={(ref) => (this.previewRef = ref)}
           title={'Preview Screen'}
@@ -142,7 +137,6 @@ class NavigationTypes extends React.Component {
           onPressIn={this.previewScreen}
         />
         {/*<Row title={'Push List Screen'} testID={'pushListScreen'} onPress={this.pushListScreen}/>*/}
->>>>>>> dc07bbbda3741029681615041060e38be06c384e:example/src/screens/NavigationTypes.js
         <Row title={'Custom TopBar'} onPress={this.pushCustomTopBarScreen}/>
         <Row title={'Custom Button'} onPress={this.pushCustomButtonScreen}/>
         <Row title={'Top Tabs Screen'} onPress={this.pushTopTabsScreen} platform={'android'}/>

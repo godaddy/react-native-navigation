@@ -1,9 +1,4 @@
 import React, {Component} from 'react';
-<<<<<<< HEAD
-import {StyleSheet, View, Text, Button} from 'react-native';
-
-class Modal extends Component {
-=======
 import {StyleSheet, View, Text, Button, TouchableOpacity, Platform} from 'react-native';
 import {Navigation} from 'react-native-navigation';
 
@@ -34,7 +29,6 @@ class Modal extends Component {
   componentWillMount() {
     navigator = this.props.navigator;
   }
->>>>>>> dc07bbbda3741029681615041060e38be06c384e
 
   onPushScreen = () => {
     this.props.navigator.push({
@@ -91,8 +85,6 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 16
-<<<<<<< HEAD
-=======
   },
   buttonContainer: {
     width: 48,
@@ -111,7 +103,6 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: 'white'
->>>>>>> dc07bbbda3741029681615041060e38be06c384e
   }
 });
 

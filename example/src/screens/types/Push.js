@@ -1,10 +1,4 @@
 import React, {Component} from 'react';
-<<<<<<< HEAD
-import {StyleSheet, View, Text, Button} from 'react-native';
-
-class Push extends Component {
-
-=======
 import {StyleSheet, View, Text, Button, Alert} from 'react-native';
 
 class Push extends Component {
@@ -25,7 +19,6 @@ class Push extends Component {
     }
   }
 
->>>>>>> dc07bbbda3741029681615041060e38be06c384e
   onPushAnother = () => {
     this.props.navigator.push({
       screen: 'example.Types.Push',
