@@ -176,10 +176,11 @@ function convertStyleParams(originalStyleObject) {
     titleBarButtonColor: processColor(originalStyleObject.navBarButtonColor),
     titleBarButtonFontFamily: originalStyleObject.navBarButtonFontFamily,
     titleBarDisabledButtonColor: processColor(originalStyleObject.titleBarDisabledButtonColor),
+    titleBarTitleFont: originalStyleObject.navBarTitleFont,
+    titleBarTitleTextCentered: originalStyleObject.navBarTitleTextCentered,
     titleBarTitleFontFamily: originalStyleObject.navBarTextFontFamily,
     titleBarTitleFontSize: originalStyleObject.navBarTextFontSize,
     titleBarTitleFontBold: originalStyleObject.navBarTextFontBold,
-    titleBarTitleTextCentered: originalStyleObject.navBarTitleTextCentered,
     titleBarHeight: originalStyleObject.navBarHeight,
     titleBarTopPadding: originalStyleObject.navBarTopPadding,
     backButtonHidden: originalStyleObject.backButtonHidden,
@@ -554,7 +555,8 @@ function addNavigatorParams(screen, navigator = null, idx = '') {
 function addNavigatorButtons(screen, sideMenuParams) {
 
   const Screen = Navigation.getRegisteredScreen(screen.screen);
-  if (screen.navigatorButtons == null) {
+  // added true to condition below to fix the immutable problem
+  if (true || screen.navigatorButtons == null) {
     screen.navigatorButtons = _.cloneDeep(Screen.navigatorButtons);
   }
 

@@ -63,9 +63,9 @@ public class StyleParamsParser {
         result.titleBarButtonFontFamily = getFont("titleBarButtonFontFamily", getDefaultTitleBarButtonFont());
         result.titleBarDisabledButtonColor = getColor("titleBarDisabledButtonColor", getTitleBarDisabledButtonColor());
         result.titleBarTitleFont = getFont("titleBarTitleFontFamily", getDefaultTitleTextFontFamily());
+        result.titleBarTitleTextCentered = getBoolean("titleBarTitleTextCentered", false);
         result.titleBarTitleFontSize = getInt("titleBarTitleFontSize", getDefaultTitleTextFontSize());
         result.titleBarTitleFontBold = getBoolean("titleBarTitleFontBold", getDefaultTitleTextFontBold());
-        result.titleBarTitleTextCentered = getBoolean("titleBarTitleTextCentered", getDefaultTitleBarTextCentered());
         result.titleBarHeight = getInt("titleBarHeight", getDefaultTitleBarHeight());
         result.backButtonHidden = getBoolean("backButtonHidden", getDefaultBackButtonHidden());
         result.topTabsHidden = getBoolean("topTabsHidden", getDefaultTopTabsHidden());
@@ -366,5 +366,9 @@ public class StyleParamsParser {
 
     private Bundle getBundle(String key) {
         return params.containsKey(key) ? params.getBundle(key) : Bundle.EMPTY;
+    }
+
+    private String getString(String key, String defaultValue) {
+        return params.containsKey(key) ? params.getString(key) : defaultValue;
     }
 }

@@ -4,8 +4,8 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.Toolbar;
@@ -98,6 +98,16 @@ public class TitleBar extends Toolbar {
         centerTitle(styleParams);
     }
 
+    protected void setTitleTextFont(StyleParams params) {
+        if (!params.titleBarTitleFont.hasFont()) {
+            return;
+        }
+        View titleView = getTitleView();
+        if (titleView instanceof TextView) {
+            ((TextView) titleView).setTypeface(params.titleBarTitleFont.get());
+        }
+    }
+
     public void setSubtitle(CharSequence subtitle, StyleParams styleParams) {
         super.setSubtitle(subtitle);
         setSubtitleFontSize(styleParams);
@@ -163,16 +173,6 @@ public class TitleBar extends Toolbar {
     protected void setTitleTextColor(StyleParams params) {
         if (params.titleBarTitleColor.hasColor()) {
             setTitleTextColor(params.titleBarTitleColor.getColor());
-        }
-    }
-
-    protected void setTitleTextFont(StyleParams params) {
-        if (!params.titleBarTitleFont.hasFont()) {
-            return;
-        }
-        View titleView = getTitleView();
-        if (titleView instanceof TextView) {
-            ((TextView) titleView).setTypeface(params.titleBarTitleFont.get());
         }
     }
 

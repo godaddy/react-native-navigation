@@ -156,6 +156,23 @@ public class TopBar extends AppBarLayout {
         });
     }
 
+    private void addReactViewFill(ContentView view) {
+        view.setLayoutParams(new LayoutParams(MATCH_PARENT, ViewUtils.getToolBarHeight()));
+        titleBar.addView(view);
+    }
+
+    private void addCenteredReactView(final ContentView view) {
+        titleBar.addView(view, new LayoutParams(WRAP_CONTENT, ViewUtils.getToolBarHeight()));
+        view.setOnDisplayListener(new Screen.OnDisplayListener() {
+            @Override
+            public void onDisplay() {
+                view.getLayoutParams().width = (int) (float) view.getChildAt(0).getMeasuredWidth();
+                ((ActionBar.LayoutParams) view.getLayoutParams()).gravity = Gravity.CENTER;
+                view.requestLayout();
+            }
+        });
+    }
+
     public void setButtonColor(StyleParams styleParams) {
         titleBar.setButtonColor(styleParams.titleBarButtonColor);
     }

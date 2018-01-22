@@ -135,9 +135,6 @@ public class SingleScreenLayout extends BaseLayout {
         if (sideMenu != null) {
             sideMenu.destroy();
         }
-        if (sideMenu != null) {
-            sideMenu.destroy();
-        }
         if (lightBox != null) {
             lightBox.destroy();
         }

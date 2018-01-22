@@ -15,6 +15,9 @@ function _getRandomId() {
 }
 
 function _processProperties(properties) {
+  if (Object.isFrozen(properties)) {
+    return;
+  }
   for (var property in properties) {
     if (properties.hasOwnProperty(property)) {
       if (property === 'icon' || property.endsWith('Icon') || property.endsWith('Image')) {

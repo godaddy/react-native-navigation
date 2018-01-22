@@ -219,7 +219,6 @@ Navigation.registerScreen('example.AdvancedScreen', () => AdvancedScreen);
 ```
 
 ## getCurrentlyVisibleScreenId()
-
 In some cases you might need the id of the currently visible screen. This method returns the unique id of the currently visible screen:
 `const visibleScreenInstanceId = await Navigation.getCurrentlyVisibleScreenId()`
 In order to have any use of this method, you'd need to map instanceId to screens your self.

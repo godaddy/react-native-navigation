@@ -22,8 +22,10 @@ public class TitleBarButtonParamsParser extends Parser {
     public TitleBarButtonParams parseSingleButton(Bundle bundle) {
         TitleBarButtonParams result = new TitleBarButtonParams();
         result.label = bundle.getString("title");
-        if (hasKey(bundle, "icon")) {
-            result.icon = ImageLoader.loadImage(bundle.getString("icon"));
+        if (hasKey(bundle, "androidDrawableClass")) {
+            result.icon = ImageLoader.loadDrawableFromClassName(bundle.getString("androidDrawableClass"));
+        } else if (hasKey(bundle, "icon")) {
+              result.icon = ImageLoader.loadImage(bundle.getString("icon"));
         }
         result.color = getColor(bundle, "color", AppStyle.appStyle.titleBarButtonColor);
         result.disabledColor = getColor(bundle, "titleBarDisabledButtonColor", AppStyle.appStyle.titleBarDisabledButtonColor);
