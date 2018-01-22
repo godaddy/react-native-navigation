@@ -50,10 +50,6 @@ public class ScreenParamsParser extends Parser {
             result.fragmentCreatorPassProps = params.getBundle(FRAGMENT_CREATOR_PASS_PROPS);
         }
 
-        if (hasKey(params, SHOW_SCREEN_ANIMATION)) {
-            result.showScreenAnimation = params.getBundle(SHOW_SCREEN_ANIMATION);
-        }
-
         result.fabParams = ButtonParser.parseFab(params, result.navigationParams.navigatorEventId, result.navigationParams.screenInstanceId);
 
         result.tabLabel = getTabLabel(params);
@@ -62,6 +58,14 @@ public class ScreenParamsParser extends Parser {
         result.animateScreenTransitions = new AnimationParser(params).parse();
         result.sharedElementsTransitions = getSharedElementsTransitions(params);
 
+        if (hasKey(params, SHOW_SCREEN_ANIMATION)) {
+            result.showScreenAnimation = params.getBundle(SHOW_SCREEN_ANIMATION);
+        }
+
+        if (hasKey(params, HIDE_SCREEN_ANIMATION)) {
+            result.hideScreenAnimation = params.getBundle(HIDE_SCREEN_ANIMATION);
+        }
+        
         result.animationType = params.getString(ANIMATION_TYPE, AppStyle.appStyle.screenAnimationType);
 
         return result;

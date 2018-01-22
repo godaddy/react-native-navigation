@@ -14,10 +14,10 @@ import com.reactnativenavigation.utils.ViewUtils;
 public class SlideInFromRightAnimator implements CustomAnimator {
 
     public Animator createAnimator(Bundle animation, final Screen screen, final Runnable onAnimationEnd) {
-        ObjectAnimator slideOutFromRight = ObjectAnimator.ofFloat(screen, View.TRANSLATION_X, ViewUtils.getScreenWidth(), 0);
-        slideOutFromRight.setInterpolator(new DecelerateInterpolator());
-        slideOutFromRight.setDuration(animation.getInt("durationMs", DEFAULT_ANIMATION_DURATION_MS));
-        slideOutFromRight.addListener(new AnimatorListenerAdapter() {
+        ObjectAnimator slideInFromRight = ObjectAnimator.ofFloat(screen, View.TRANSLATION_X, ViewUtils.getScreenWidth(), 0);
+        slideInFromRight.setInterpolator(new DecelerateInterpolator());
+        slideInFromRight.setDuration(animation.getInt("durationMs", DEFAULT_ANIMATION_DURATION_MS));
+        slideInFromRight.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
                 super.onAnimationStart(animation);
@@ -32,6 +32,7 @@ public class SlideInFromRightAnimator implements CustomAnimator {
             }
         });
 
-        return slideOutFromRight;
+
+        return slideInFromRight;
     }
 }
