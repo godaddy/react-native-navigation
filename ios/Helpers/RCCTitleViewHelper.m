@@ -191,9 +191,21 @@ navigationController:(UINavigationController*)navigationController
     titleLabel.backgroundColor = [UIColor clearColor];
     
     titleLabel.autoresizingMask = self.titleView.autoresizingMask;
-    
-    UIFont *titleFont = [UIFont boldSystemFontOfSize:17.f];
-    
+  
+    CGFloat titleFontSizeFloat = 17.f;
+    id titleFontSize = style[@"navBarTextFontSize"];
+    if (titleFontSize) {
+        titleFontSizeFloat = [RCTConvert CGFloat:titleFontSize];
+    }
+
+    UIFont* titleFont = nil;
+    NSString* fontFamily = style[@"navBarTextFontFamily"];
+    if (fontFamily) {
+        titleFont = [UIFont fontWithName:fontFamily size:titleFontSizeFloat];
+    } else {
+        titleFont = [UIFont boldSystemFontOfSize:titleFontSizeFloat];
+    }
+  
     id fontSize = style[@"navBarTitleFontSize"];
     if (fontSize) {
         CGFloat fontSizeFloat = [RCTConvert CGFloat:fontSize];
