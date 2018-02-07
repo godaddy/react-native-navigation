@@ -131,6 +131,9 @@ var Controllers = {
       _validateDrawerProps(layout);
       _processProperties(_.get(layout, 'props.appStyle', {}));
       return await RCCManager.setRootController(layout, animationType, passProps);
+    },
+    getLaunchArgs: async function() {
+      return await RCCManager.getLaunchArgs();
     }
   },
 
