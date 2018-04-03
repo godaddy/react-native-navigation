@@ -47,6 +47,10 @@ public class ViewUtils {
     }
 
     public static void tintDrawable(Drawable drawable, int tint, boolean enabled) {
+        // for custom drawables we do not set color filter
+        if (!drawable.getClass().getPackage().getName().equals("android.graphics.drawable")) {
+            return;
+        }
         drawable.setColorFilter(new PorterDuffColorFilter(enabled ? tint :
                 AppStyle.appStyle.titleBarDisabledButtonColor.getColor(),
                 PorterDuff.Mode.SRC_IN));
