@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "start": "watchman watch-del-all && adb reverse tcp:8081 tcp:8081 && node node_modules/react-native/local-cli/cli.js start",
-    "install:android": "cd android && ./gradlew installDebug"
+    "install:android": "cd android && ./gradlew installDebug",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "dependencies": {
     "react-native-navigation": "file:../",
@@ -13,6 +15,8 @@
     "react-redux": "^4.0.6",
     "redux": "^3.0.5",
     "redux-thunk": "^1.0.3",
-    "seamless-immutable": "^5.0.1"
-  }
+    "seamless-immutable": "^5.0.1",
+    "snyk": "^1.189.0"
+  },
+  "snyk": true
 }
