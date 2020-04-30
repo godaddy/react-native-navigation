@@ -27,14 +27,17 @@
     "pretest": "npm run lint",
     "test": "npm run test:js && npm run test:android && npm run test:ios",
     "test:watch": "jest --coverage --watch",
-    "release": "node ./scripts/release.js"
+    "release": "node ./scripts/release.js",
+    "snyk-protect": "snyk protect",
+    "prepare": "yarn run snyk-protect"
   },
   "peerDependencies": {
     "react": "*",
     "react-native": "*"
   },
   "dependencies": {
-    "lodash": "4.x.x"
+    "lodash": "4.x.x",
+    "snyk": "^1.316.1"
   },
   "devDependencies": {
     "babel-cli": "6.x.x",
@@ -65,5 +68,6 @@
     ],
     "resetMocks": true,
     "resetModules": true
-  }
+  },
+  "snyk": true
 }
