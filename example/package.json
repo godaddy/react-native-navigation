@@ -8,13 +8,16 @@
     "xcode": "open ios/example.xcodeproj",
     "android": "cd android && ./gradlew installDebug",
     "e2e": "detox test --configuration ios.sim.debug",
-    "e2e-release": "detox test --configuration ios.sim.release"
+    "e2e-release": "detox test --configuration ios.sim.release",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "dependencies": {
     "react": "16.0.0",
     "react-native": "0.53.0",
     "react-native-animatable": "^1.1.0",
-    "react-native-navigation": "latest"
+    "react-native-navigation": "latest",
+    "snyk": "^1.319.2"
   },
   "devDependencies": {
     "detox": "^5.0.0",
@@ -34,5 +37,6 @@
         "name": "iPhone 6s"
       }
     }
-  }
+  },
+  "snyk": true
 }
